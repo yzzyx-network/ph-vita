@@ -30,7 +30,7 @@
 
 #include "file_access_unix.h"
 
-#if defined(UNIX_ENABLED) || defined(LIBC_FILEIO_ENABLED)
+#if defined(UNIX_ENABLED) || defined(LIBC_FILEIO_ENABLED) || defined(VITA_ENABLED)
 
 #include "core/os/os.h"
 #include "core/print_string.h"
@@ -44,8 +44,12 @@
 #include <unistd.h>
 #endif
 
-#ifndef ANDROID_ENABLED
+#if !defined(ANDROID_ENABLED) && !defined(VITA_ENABLED)
 #include <sys/statvfs.h>
+#endif
+
+#ifdef VITA_ENABLED
+#include <psp2/io/stat.h>
 #endif
 
 #ifdef MSVC
@@ -290,6 +294,7 @@ bool FileAccessUnix::file_exists(const String &p_path) {
 	err = stat(filename.utf8().get_data(), &st);
 	if (err)
 		return false;
+#ifndef VITA_ENABLED
 
 #ifdef UNIX_ENABLED
 	// See if we have access to the file
@@ -298,6 +303,7 @@ bool FileAccessUnix::file_exists(const String &p_path) {
 #else
 	if (_access(filename.utf8().get_data(), 4) == -1)
 		return false;
+#endif
 #endif
 
 	// See if this is a regular file
@@ -340,7 +346,13 @@ Error FileAccessUnix::_set_unix_permissions(const String &p_file, uint32_t p_per
 
 	String file = fix_path(p_file);
 
+	#ifdef VITA_ENABLED
+	SceIoStat stat_s;
+	stat_s.st_mode = p_permissions;
+	int err = sceIoChstat(file.utf8().get_data(), &stat_s, SCE_CST_MODE);
+	#else
 	int err = chmod(file.utf8().get_data(), p_permissions);
+	#endif
 	if (!err) {
 		return OK;
 	}

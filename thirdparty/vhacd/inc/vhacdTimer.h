@@ -29,6 +29,10 @@
 #include <time.h>
 #endif
 
+#ifdef VITA_ENABLED
+#include <psp2/rtc.h>
+#endif
+
 namespace VHACD {
 #ifdef _WIN32
 class Timer {
@@ -101,11 +105,27 @@ public:
     ~Timer(void){};
     void Tic()
     {
+        #ifdef VITA_ENABLED
+        static int tick_resolution = sceRtcGetTickResolution();
+        SceRtcTick current_tick;
+        sceRtcGetCurrentTick(&current_tick);
+        m_start.tv_nsec = current_tick.tick / (tick_resolution / 1000000);
+        m_start.tv_sec = m_start.tv_nsec / 1000000;
+        #else
         clock_gettime(CLOCK_REALTIME, &m_start);
+        #endif
     }
     void Toc()
     {
+        #ifdef VITA_ENABLED
+        static int tick_resolution = sceRtcGetTickResolution();
+        SceRtcTick current_tick;
+        sceRtcGetCurrentTick(&current_tick);
+        m_stop.tv_nsec = current_tick.tick / (tick_resolution / 1000000);
+        m_stop.tv_sec = m_stop.tv_nsec / 1000000;
+        #else
         clock_gettime(CLOCK_REALTIME, &m_stop);
+        #endif
     }
     double GetElapsedTime() // in ms
     {

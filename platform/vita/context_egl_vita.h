@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  file_access_unix.h                                                   */
+/*  context_egl_vita.h                                                   */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,65 +28,48 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef FILE_ACCESS_UNIX_H
-#define FILE_ACCESS_UNIX_H
+#ifndef CONTEXT_EGL_VITA_H
+#define CONTEXT_EGL_VITA_H
 
-#include "core/os/file_access.h"
-#include "core/os/memory.h"
+#include "core/os/os.h"
+#include <psp2/types.h>
+#include <EGL/egl.h> // EGL library
+#include <psp2/sysmodule.h>
+#include <psp2/kernel/modulemgr.h>
+#include <psp2/kernel/clib.h>
+extern "C" {
+#include <gpu_es4/psp2_pvr_hint.h>
+}
 
-#include <stdio.h>
+class ContextEGL_Vita {
+	bool gles2_context;
+	bool vsync;
 
-#if defined(UNIX_ENABLED) || defined(LIBC_FILEIO_ENABLED) || defined(VITA_ENABLED)
+    Psp2NativeWindow nwin;
 
-typedef void (*CloseNotificationFunc)(const String &p_file, int p_flags);
-
-class FileAccessUnix : public FileAccess {
-
-	FILE *f;
-	int flags;
-	void check_errors() const;
-	mutable Error last_error;
-	String save_path;
-	String path;
-	String path_src;
-
-	static FileAccess *create_libc();
+	EGLDisplay display;
+	EGLContext context;
+	EGLSurface surface;
 
 public:
-	static CloseNotificationFunc close_notification_func;
+	void release_current();
 
-	virtual Error _open(const String &p_path, int p_mode_flags); ///< open a file
-	virtual void close(); ///< close a file
-	virtual bool is_open() const; ///< true when file is open
+	void make_current();
 
-	virtual String get_path() const; /// returns the path for the current open file
-	virtual String get_path_absolute() const; /// returns the absolute path for the current open file
+	int get_window_width();
+	int get_window_height();
+	void swap_buffers();
 
-	virtual void seek(size_t p_position); ///< seek to a given position
-	virtual void seek_end(int64_t p_position = 0); ///< seek from the end of file
-	virtual size_t get_position() const; ///< get position in the file
-	virtual size_t get_len() const; ///< get size of the file
+	void set_use_vsync(bool use) { vsync = use; }
+	bool is_using_vsync() const { return vsync; }
 
-	virtual bool eof_reached() const; ///< reading passed EOF
+	Error initialize();
+	void reset();
 
-	virtual uint8_t get_8() const; ///< get a byte
-	virtual int get_buffer(uint8_t *p_dst, int p_length) const;
+	void cleanup();
 
-	virtual Error get_error() const; ///< get last error
-
-	virtual void flush();
-	virtual void store_8(uint8_t p_dest); ///< store a byte
-	virtual void store_buffer(const uint8_t *p_src, int p_length); ///< store an array of bytes
-
-	virtual bool file_exists(const String &p_path); ///< return true if a file exists
-
-	virtual uint64_t _get_modified_time(const String &p_file);
-	virtual uint32_t _get_unix_permissions(const String &p_file);
-	virtual Error _set_unix_permissions(const String &p_file, uint32_t p_permissions);
-
-	FileAccessUnix();
-	virtual ~FileAccessUnix();
+	ContextEGL_Vita(bool gles2);
+	virtual ~ContextEGL_Vita();
 };
 
-#endif
-#endif
+#endif  // CONTEXT_EGL_VITA_H

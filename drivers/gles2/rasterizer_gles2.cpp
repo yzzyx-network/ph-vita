@@ -76,6 +76,10 @@
 #include <GLES2/gl2ext.h>
 #include <GLES2/gl2platform.h>
 
+#ifdef VITA_ENABLED
+#include <psp2/types.h>
+#endif
+
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #endif
@@ -265,8 +269,11 @@ void RasterizerGLES2::initialize() {
 
 	print_line("OpenGL ES 2.0 Renderer: " + VisualServer::get_singleton()->get_video_adapter_name());
 	storage->initialize();
+	print_line("Initializing Canvas");
 	canvas->initialize();
+	print_line("Initializing Scene");
 	scene->initialize();
+	print_line("Finished Initialization");
 }
 
 void RasterizerGLES2::begin_frame(double frame_step) {

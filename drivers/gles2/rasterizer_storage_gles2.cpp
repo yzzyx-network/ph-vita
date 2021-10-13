@@ -100,7 +100,7 @@ GLuint RasterizerStorageGLES2::system_fbo = 0;
 //void *glRenderbufferStorageMultisampleAPPLE;
 //void *glResolveMultisampleFramebufferAPPLE;
 #define glRenderbufferStorageMultisample glRenderbufferStorageMultisampleAPPLE
-#elif defined(ANDROID_ENABLED)
+#elif defined(ANDROID_ENABLED) || defined(VITA_ENABLED)
 
 #include <GLES2/gl2ext.h>
 PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC glRenderbufferStorageMultisampleEXT;

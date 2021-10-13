@@ -30,7 +30,7 @@
 
 #include "dir_access_unix.h"
 
-#if defined(UNIX_ENABLED) || defined(LIBC_FILEIO_ENABLED)
+#if defined(UNIX_ENABLED) || defined(LIBC_FILEIO_ENABLED) || defined(VITA_ENABLED)
 
 #include "core/list.h"
 #include "core/os/memory.h"
@@ -41,8 +41,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifndef ANDROID_ENABLED
+#if !defined(ANDROID_ENABLED) && !defined(VITA_ENABLED)
 #include <sys/statvfs.h>
+#endif
+
+#ifdef VITA_ENABLED
+#include <psp2/appmgr.h>
+#include <psp2/io/stat.h>
 #endif
 
 #ifdef HAVE_MNTENT
@@ -141,6 +146,10 @@ String DirAccessUnix::get_next() {
 	// the type is a link, in that case we want to resolve the link to
 	// known if it points to a directory. stat() will resolve the link
 	// for us.
+	#ifdef VITA_ENABLED
+	#define SCE_SO_ISDIR(m)	(((m) & SCE_SO_IFMT) == SCE_SO_IFDIR)
+	_cisdir = SCE_SO_ISDIR(entry->d_stat.st_attr);
+	#else
 	if (entry->d_type == DT_UNKNOWN || entry->d_type == DT_LNK) {
 		String f = current_dir.plus_file(fname);
 
@@ -153,6 +162,7 @@ String DirAccessUnix::get_next() {
 	} else {
 		_cisdir = (entry->d_type == DT_DIR);
 	}
+	#endif
 
 	_cishidden = is_hidden(fname);
 
@@ -283,7 +293,11 @@ Error DirAccessUnix::make_dir(String p_dir) {
 
 	p_dir = fix_path(p_dir);
 
+	#ifdef VITA_ENABLED
+	bool success = sceIoMkdir(p_dir.utf8().get_data(), 0777);
+	#else
 	bool success = (mkdir(p_dir.utf8().get_data(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == 0);
+	#endif
 	int err = errno;
 
 	if (success) {
@@ -301,6 +315,10 @@ Error DirAccessUnix::change_dir(String p_dir) {
 
 	GLOBAL_LOCK_FUNCTION
 
+	#ifdef VITA_ENABLED
+	current_dir = p_dir;
+	return OK;
+	#else
 	p_dir = fix_path(p_dir);
 
 	// prev_dir is the directory we are changing out of
@@ -340,6 +358,7 @@ Error DirAccessUnix::change_dir(String p_dir) {
 	current_dir = try_dir;
 	ERR_FAIL_COND_V(chdir(prev_dir.utf8().get_data()) != 0, ERR_BUG);
 	return OK;
+	#endif
 }
 
 String DirAccessUnix::get_current_dir() {
@@ -390,6 +409,13 @@ Error DirAccessUnix::remove(String p_path) {
 
 size_t DirAccessUnix::get_space_left() {
 
+#ifdef VITA_ENABLED
+	uint64_t max_size;
+	uint64_t free_size;
+	sceAppMgrGetDevInfo("ux0:", &max_size, &free_size);
+	return free_size;
+#else
+
 #ifndef NO_STATVFS
 	struct statvfs vfs;
 	if (statvfs(current_dir.utf8().get_data(), &vfs) != 0) {
@@ -401,6 +427,7 @@ size_t DirAccessUnix::get_space_left() {
 #else
 	// FIXME: Implement this.
 	return 0;
+#endif
 #endif
 };
 
@@ -420,12 +447,17 @@ DirAccessUnix::DirAccessUnix() {
 	/* determine drive count */
 
 	// set current directory to an absolute path of the current directory
+	#ifdef VITA_ENABLED
+	current_dir = "app0:";
+	change_dir("app0:");
+	#else
 	char real_current_dir_name[2048];
 	ERR_FAIL_COND(getcwd(real_current_dir_name, 2048) == NULL);
 	if (current_dir.parse_utf8(real_current_dir_name))
 		current_dir = real_current_dir_name;
 
 	change_dir(current_dir);
+	#endif
 }
 
 DirAccessUnix::~DirAccessUnix() {
