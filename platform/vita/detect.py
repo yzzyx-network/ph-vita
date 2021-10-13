@@ -59,7 +59,7 @@ def get_flags():
         ('module_csg_enabled', False),
         ('module_dds_enabled', False),
         ('module_visual_script_enabled', False),
-        ('disable_3d', True),
+        ('disable_3d', False),
         ('minizip', False),
         ('disable_advanced_gui', True),
         ('deprecated', False),
