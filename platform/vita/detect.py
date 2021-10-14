@@ -155,6 +155,8 @@ def configure(env):
         "SceSysmodule_stub",
         "SceDisplay_stub",
         "SceFios2_stub",
+        "SceCtrl_stub",
+        "SceTouch_stub",
         "jpeg",
         "png",
         "freetype",
