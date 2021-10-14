@@ -39,6 +39,7 @@
 
 #include <psp2/appmgr.h>
 #include <psp2/kernel/processmgr.h>
+#include "joypad_vita.h"
 
 class OS_Vita : public OS {
     MainLoop *main_loop;
@@ -46,6 +47,13 @@ class OS_Vita : public OS {
     ContextEGL_Vita *gl_context;
     VideoMode current_videomode;
     VisualServer *visual_server;
+    InputDefault *input;
+    JoypadVita *joypad;
+    Vector2 last_touch_pos[SCE_TOUCH_MAX_REPORT];
+    SceTouchData touch;
+    SceTouchPanelInfo front_panel_info;
+    Vector2 front_panel_size;
+    void process_touch();
     int video_driver_index;
 protected:
 	virtual void initialize_core();

@@ -6,6 +6,7 @@ files = [
 	"os_vita.cpp",
 	"godot_vita.cpp",
 	"context_egl_vita.cpp",
+	"joypad_vita.cpp",
 ]
 
 prog = env.add_program('#bin/godot', files)

@@ -51,6 +51,9 @@
 #include "drivers/dummy/texture_loader_dummy.h"
 #include "servers/audio_server.h"
 
+#define SCREEN_W 960
+#define SCREEN_H 544
+
 void OS_Vita::initialize_core()
 {
 	FileAccess::make_default<FileAccessUnix>(FileAccess::ACCESS_RESOURCES);
@@ -68,6 +71,8 @@ void OS_Vita::finalize_core()
 void OS_Vita::finalize()
 {
 	visual_server->finish();
+	memdelete(input);
+	memdelete(joypad);
 	memdelete(visual_server);
 	memdelete(gl_context);
 }
@@ -188,6 +193,15 @@ Error OS_Vita::initialize(const VideoMode &p_desired, int p_video_driver, int p_
 
 	visual_server->init();
 
+	input = memnew(InputDefault);
+	input->set_emulate_mouse_from_touch(true);
+	joypad = memnew(JoypadVita(input));
+
+    sceTouchSetSamplingState(SCE_TOUCH_PORT_FRONT, SCE_TOUCH_SAMPLING_STATE_START);
+
+	sceTouchGetPanelInfo(0, &front_panel_info);
+	front_panel_size = Vector2(front_panel_info.maxAaX, front_panel_info.maxAaY);
+
 	return OK;
 }
 
@@ -199,11 +213,59 @@ void OS_Vita::run() {
 
 	while (true) {
 
+		joypad->process();
+		process_touch();
+
 		if (Main::iteration())
 			break;
 	};
 
 	main_loop->finish();
+}
+
+void OS_Vita::process_touch() {
+    sceTouchPeek(0, &touch, 1);
+    static uint32_t last_touch_count = 0;
+
+    if (touch.reportNum != last_touch_count) {
+        if (touch.reportNum > last_touch_count) { // new touches
+            for(uint32_t i = last_touch_count; i < touch.reportNum; i++) {
+                Vector2 pos(touch.report[i].x, touch.report[i].y);
+                pos /= front_panel_size;
+                pos *= Vector2(SCREEN_W, SCREEN_H);
+                Ref<InputEventScreenTouch> st;
+                st.instance();
+                st->set_index(i);
+                st->set_position(pos);
+                st->set_pressed(true);
+                input->parse_input_event(st);
+            }
+        } else { // lost touches
+            for(uint32_t i = touch.reportNum; i < last_touch_count; i++) {
+                Ref<InputEventScreenTouch> st;
+                st.instance();
+                st->set_index(i);
+                st->set_position(last_touch_pos[i]);
+                st->set_pressed(false);
+                input->parse_input_event(st);
+            }
+        }
+    } else {
+        for (uint32_t i = 0; i < touch.reportNum; i++) {
+            Vector2 pos(touch.report[i].x, touch.report[i].y);
+			pos /= front_panel_size;
+            pos *= Vector2(SCREEN_W, SCREEN_H);
+            Ref<InputEventScreenDrag> sd;
+            sd.instance();
+            sd->set_index(i);
+            sd->set_position(pos);
+            sd->set_relative(pos - last_touch_pos[i]);
+            last_touch_pos[i] = pos;
+            input->parse_input_event(sd);
+        }
+    }
+
+    last_touch_count = touch.reportNum;
 }
 
 String OS_Vita::get_name() const {
@@ -223,7 +285,7 @@ void OS_Vita::delete_main_loop() {
 void OS_Vita::set_main_loop(MainLoop *p_main_loop) {
 
 	main_loop = p_main_loop;
-	//input->set_main_loop(p_main_loop);
+	input->set_main_loop(p_main_loop);
 }
 
 bool OS_Vita::_check_internal_feature_support(const String &p_feature) {
