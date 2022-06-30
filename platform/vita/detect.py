@@ -125,7 +125,7 @@ def configure(env):
     env.Append(CPPPATH=['#platform/vita'])
     env.Append(CPPFLAGS=['-DLIBC_FILEIO_ENABLED', '-DGLES_ENABLED'])
     env.Append(CPPFLAGS=['-DPTHREAD_NO_RENAME'])
-    env.Append(CCFLAGS=['-mtune=cortex-a9', '-mfpu=neon', '-ftree-vectorize'])
+    env.Append(CCFLAGS=['-mtune=cortex-a9', '-mfpu=neon', '-fpermissive', '-ftree-vectorize'])
     env.Append(LIBS=[
         "SceLibKernel_stub",
         "SceKernelThreadMgr_stub",

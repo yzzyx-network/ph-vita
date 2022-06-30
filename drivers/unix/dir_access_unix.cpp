@@ -448,8 +448,8 @@ DirAccessUnix::DirAccessUnix() {
 
 	// set current directory to an absolute path of the current directory
 	#ifdef VITA_ENABLED
-	current_dir = "app0:";
-	change_dir("app0:");
+	current_dir = "app0:/game_data";
+	change_dir("app0:/game_data");
 	#else
 	char real_current_dir_name[2048];
 	ERR_FAIL_COND(getcwd(real_current_dir_name, 2048) == NULL);
