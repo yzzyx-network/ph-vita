@@ -7,7 +7,7 @@
 #include "main/main.h"
 #include "os_vita.h"
 
-#define MEMORY_SCELIBC_MB 180
+#define MEMORY_SCELIBC_MB 20
 #define MEMORY_NEWLIB_MB 100
 # define SCE_NULL NULL
 
