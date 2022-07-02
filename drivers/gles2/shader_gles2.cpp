@@ -37,6 +37,8 @@
 #include "rasterizer_gles2.h"
 #include "rasterizer_storage_gles2.h"
 
+#include <psp2/kernel/clib.h>
+
 // #define DEBUG_OPENGL
 
 // #include "shaders/copy.glsl.gen.h"
@@ -81,6 +83,9 @@ bool ShaderGLES2::bind() {
 
 	if (active != this || !version || new_conditional_version.key != conditional_version.key) {
 		conditional_version = new_conditional_version;
+#ifdef DEBUG_SHADER
+		sceClibPrintf("Getting Shader: %s\n", get_shader_name().ascii().get_data());
+#endif
 		version = get_current_version();
 	} else {
 		return false;
@@ -92,9 +97,13 @@ bool ShaderGLES2::bind() {
 		glUseProgram(0);
 		return false;
 	}
-
+#ifdef DEBUG_SHADER
+	sceClibPrintf("Binding Shader: %s@%d,%d,%d\n", get_shader_name().ascii().get_data(), version->vert_id, version->frag_id, version->id);
+#endif
 	glUseProgram(version->id);
-
+#ifdef DEBUG_SHADER
+	sceClibPrintf("Binded Shader: %s@%d,%d,%d\n", get_shader_name().ascii().get_data(), version->vert_id, version->frag_id, version->id);
+#endif
 	DEBUG_TEST_ERROR("use program");
 
 	active = this;

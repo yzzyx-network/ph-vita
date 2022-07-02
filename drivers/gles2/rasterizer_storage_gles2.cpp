@@ -1329,11 +1329,13 @@ void RasterizerStorageGLES2::sky_set_texture(RID p_sky, RID p_panorama, int p_ra
 			shaders.cubemap_filter.set_uniform(CubemapFilterShaderGLES2::Z_FLIP, false);
 
 			glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-
 			glCopyTexSubImage2D(_cube_side_enum[i], lod, 0, 0, 0, 0, size, size);
 		}
-
+#ifdef VITA_ENABLED
+		size = 0;
+#else
 		size >>= 1;
+#endif
 
 		mm_level--;
 
@@ -5576,7 +5578,7 @@ RID RasterizerStorageGLES2::canvas_light_shadow_buffer_create(int p_width) {
 	glBindRenderbuffer(GL_RENDERBUFFER, cls->depth);
 	glRenderbufferStorage(GL_RENDERBUFFER, config.depth_buffer_internalformat, cls->size, cls->height);
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, cls->depth);
-
+	
 	glGenTextures(1, &cls->distance);
 	glBindTexture(GL_TEXTURE_2D, cls->distance);
 	if (config.use_rgba_2d_shadows) {
@@ -5596,7 +5598,6 @@ RID RasterizerStorageGLES2::canvas_light_shadow_buffer_create(int p_width) {
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, cls->distance, 0);
 
 	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	//printf("errnum: %x\n",status);
 	glBindFramebuffer(GL_FRAMEBUFFER, RasterizerStorageGLES2::system_fbo);
 
 	if (status != GL_FRAMEBUFFER_COMPLETE) {
