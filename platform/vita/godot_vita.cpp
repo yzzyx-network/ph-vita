@@ -8,7 +8,7 @@
 #include "os_vita.h"
 
 #define MEMORY_SCELIBC_MB 20
-#define MEMORY_NEWLIB_MB 100
+#define MEMORY_NEWLIB_MB 180
 # define SCE_NULL NULL
 
 int _newlib_heap_size_user = MEMORY_NEWLIB_MB * 1024 * 1024;
@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
     sceKernelLoadStartModule("vs0:sys/external/libc.suprx", 0, NULL, 0, NULL, NULL);
 
     sceClibPrintf("Showing the path now UwU: %d %s\n", argc, argv[0]);
-	char* args[] = {"--path", "app0:/game_data"};
+	char* args[] = {"--path", "app0:/game_data", "--main-pack", "app0:/game_data/game.pck"};
 
 	Error err = Main::setup("", sizeof(args)/sizeof(args[0]), args);
 	if (err != OK) {
