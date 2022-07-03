@@ -300,13 +300,6 @@ bool OS_Vita::_check_internal_feature_support(const String &p_feature) {
 	return false;
 }
 
-OS::RenderThreadMode OS_Vita::get_render_thread_mode() const {
-	if (OS::get_render_thread_mode() == OS::RenderThreadMode::RENDER_SEPARATE_THREAD) {
-		return OS::RENDER_THREAD_SAFE;
-	}
-	return OS::get_render_thread_mode();
-}
-
 /*
 	SceInt32 sdkVersion;
 	SceChar8 audioPath[0x80];           //Path to audio file that will be played during dialog, .mp3, .at9, m4a. Can be NULL
