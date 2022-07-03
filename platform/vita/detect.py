@@ -76,10 +76,10 @@ def configure(env):
     env.Prepend(CPPPATH=['{}/arm-vita-eabi/include/freetype2'.format(os.environ.get("VITASDK"))])
     env.Prepend(CPPPATH=['{}/share/gcc-arm-vita-eabi/samples/common'.format(os.environ.get("VITASDK"))])
     env.Append(LIBPATH=['{}/arm-vita-eabi/lib'.format(os.environ.get("VITASDK"))])
-    env.Prepend(LINKFLAGS=["-Wl,-q"])
+    env.Append(LINKFLAGS=["-Wl,-q,-whole-archive", "-lpthread", "-Wl,-q,-no-whole-archive"])
     print(env.get("CCFLAGS"))
 
-    env.Prepend(CCFLAGS=['-Wl,-q', '-D_POSIX_TIMERS', '-DNO_THREADS', '-DUNIX_SOCKET_UNAVAILABLE', '-DVITA_ENABLED', '-DPOSH_COMPILER_GCC', '-DPOSH_OS_VITA', '-DPOSH_OS_STRING=\\"vita\\"', '-D__psp2__'])
+    env.Prepend(CCFLAGS=['-Wl,-q', '-D_POSIX_TIMERS', '-DPTHREAD_ENABLED', '-DUNIX_SOCKET_UNAVAILABLE', '-DVITA_ENABLED', '-DPOSH_COMPILER_GCC', '-DPOSH_OS_VITA', '-DPOSH_OS_STRING=\\"vita\\"', '-D__psp2__'])
 
 
     if (env["target"] == "release"):
@@ -144,7 +144,6 @@ def configure(env):
         "ogg",
         "z",
         "theora",
-        "pthread",
         "-llibgpu_es4_ext_stub.a",
         "-llibIMGEGL_stub.a",
         "-llibGLESv2_stub.a",

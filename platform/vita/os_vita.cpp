@@ -56,6 +56,10 @@
 
 void OS_Vita::initialize_core()
 {
+#if !defined(NO_THREADS)
+	init_thread_posix();
+#endif
+
 	FileAccess::make_default<FileAccessUnix>(FileAccess::ACCESS_RESOURCES);
 	FileAccess::make_default<FileAccessUnix>(FileAccess::ACCESS_USERDATA);
 	FileAccess::make_default<FileAccessUnix>(FileAccess::ACCESS_FILESYSTEM);
