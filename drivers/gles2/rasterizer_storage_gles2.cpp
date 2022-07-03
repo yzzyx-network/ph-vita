@@ -6151,8 +6151,13 @@ void RasterizerStorageGLES2::initialize() {
 	config.support_depth_cubemaps = true;
 #else
 	config.use_rgba_2d_shadows = !(config.float_texture_supported && config.extensions.has("GL_EXT_texture_rg"));
+#ifndef VITA_ENABLED
 	config.support_depth_texture = config.extensions.has("GL_OES_depth_texture") || config.extensions.has("WEBGL_depth_texture");
 	config.use_rgba_3d_shadows = !config.support_depth_texture;
+#else
+	config.support_depth_texture = false;
+	config.use_rgba_3d_shadows = true;
+#endif
 	config.support_depth_cubemaps = config.extensions.has("GL_OES_depth_texture_cube_map");
 #endif
 
