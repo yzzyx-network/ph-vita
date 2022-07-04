@@ -127,6 +127,7 @@ def configure(env):
     env.Append(CPPFLAGS=['-DPTHREAD_NO_RENAME'])
     env.Append(CCFLAGS=['-mtune=cortex-a9', '-mfpu=neon', '-fpermissive', '-ftree-vectorize'])
     env.Append(LIBS=[
+        "taihen_stub",
         "SceLibKernel_stub",
         "SceKernelThreadMgr_stub",
         "SceAppMgr_stub",
@@ -137,6 +138,7 @@ def configure(env):
         "SceCtrl_stub",
         "SceTouch_stub",
         "SceAudio_stub",
+        "ScePower_stub",
         "jpeg",
         "png",
         "freetype",
