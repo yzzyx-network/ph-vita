@@ -30,6 +30,7 @@
 #ifndef OS_VITA_H
 #define OS_VITA_H
 
+#include "audio_driver_vita.h"
 #include "context_egl_vita.h"
 #include "drivers/dummy/texture_loader_dummy.h"
 #include "drivers/unix/os_unix.h"
@@ -47,6 +48,7 @@ class OS_Vita : public OS {
     ContextEGL_Vita *gl_context;
     VideoMode current_videomode;
     VisualServer *visual_server;
+    AudioDriverVita driver_vita;
     InputDefault *input;
     JoypadVita *joypad;
     Vector2 last_touch_pos[SCE_TOUCH_MAX_REPORT];
@@ -84,6 +86,9 @@ public:
     void run();
     virtual void swap_buffers();
     virtual MainLoop *get_main_loop() const;
+
+    virtual String get_user_data_dir() const;
+	virtual String get_data_path() const;
 
     virtual bool has_environment(const String &p_var) const;
     virtual String get_environment(const String &p_var) const;

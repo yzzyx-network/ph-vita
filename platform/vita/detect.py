@@ -136,6 +136,7 @@ def configure(env):
         "SceFios2_stub",
         "SceCtrl_stub",
         "SceTouch_stub",
+        "SceAudio_stub",
         "jpeg",
         "png",
         "freetype",

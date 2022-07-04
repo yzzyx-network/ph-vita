@@ -380,10 +380,42 @@ bool OS_Vita::can_draw() const
 
 int OS_Vita::get_current_video_driver() const { return video_driver_index; }
 
+String OS_Vita::get_data_path() const {
+	return "ux0:/data";
+}
+
+String OS_Vita::get_user_data_dir() const {
+	String appname = get_safe_dir_name(ProjectSettings::get_singleton()->get("application/config/name"));
+	if (appname != "") {
+		bool use_custom_dir = ProjectSettings::get_singleton()->get("application/config/use_custom_user_dir");
+		if (use_custom_dir) {
+			String custom_dir = get_safe_dir_name(ProjectSettings::get_singleton()->get("application/config/custom_user_dir_name"), true);
+			if (custom_dir == "") {
+				custom_dir = appname;
+			}
+			DirAccess *dir_access = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
+			dir_access->make_dir_recursive(get_data_path().plus_file(custom_dir));
+			memdelete(dir_access);
+			return get_data_path().plus_file(custom_dir);
+		} else {
+			DirAccess *dir_access = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
+			dir_access->make_dir_recursive(get_data_path().plus_file(get_godot_dir_name()).plus_file("app_userdata").plus_file(appname));
+			memdelete(dir_access);
+			return get_data_path().plus_file(get_godot_dir_name()).plus_file("app_userdata").plus_file(appname);
+		}
+	}
+	DirAccess *dir_access = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
+	dir_access->make_dir_recursive(get_data_path().plus_file(get_godot_dir_name()).plus_file("app_userdata").plus_file("__unknown"));
+	memdelete(dir_access);
+	return get_data_path().plus_file(get_godot_dir_name()).plus_file("app_userdata").plus_file("__unknown");
+}
+
 OS_Vita::OS_Vita()
 {
     video_driver_index = 0;
 	main_loop = nullptr;
     visual_server = nullptr;
+	input = nullptr;
 	gl_context = nullptr;
+	AudioDriverManager::add_driver(&driver_vita);
 }
