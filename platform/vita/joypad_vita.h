@@ -7,7 +7,6 @@
 /*************************************************************************/
 /* Copyright (c) 2007-2022 Juan Linietsky, Ariel Manzur.                 */
 /* Copyright (c) 2014-2022 Godot Engine contributors (cf. AUTHORS.md).   */
-/* Copyright (c) 2022 Jaylon Gowie                                       */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -38,13 +37,14 @@
 
 class JoypadVita {
 public:
-    JoypadVita(InputDefault *in);
-    ~JoypadVita();
-    void process_joypads();
+	JoypadVita(InputDefault *in);
+	~JoypadVita();
+	void process_joypads();
+
 private:
-    InputDefault *input;
-    SceCtrlData pad_input;
-    int button_count;
+	InputDefault *input;
+	SceCtrlData pad_input;
+	int button_count;
 };
 
 #endif // JOYPAD_VITA_H

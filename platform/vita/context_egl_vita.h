@@ -32,10 +32,11 @@
 #define CONTEXT_EGL_VITA_H
 
 #include "core/os/os.h"
-#include <psp2/types.h>
-#include <EGL/egl.h> // EGL library
-#include <psp2/sysmodule.h>
 #include <psp2/kernel/modulemgr.h>
+#include <psp2/sysmodule.h>
+#include <psp2/types.h>
+
+#include <EGL/egl.h> // EGL library
 
 extern "C" {
 #include <gpu_es4/psp2_pvr_hint.h>
@@ -75,4 +76,4 @@ public:
 	~ContextEGL_Vita();
 };
 
-#endif  // CONTEXT_EGL_VITA_H
+#endif // CONTEXT_EGL_VITA_H

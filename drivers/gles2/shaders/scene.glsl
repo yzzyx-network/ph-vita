@@ -222,19 +222,19 @@ void light_compute(
 		vec3 light_color,
 		vec3 attenuation,
 		float roughness) {
-//this makes lights behave closer to linear, but then addition of lights looks bad
-//better left disabled
+	//this makes lights behave closer to linear, but then addition of lights looks bad
+	//better left disabled
 
-//#define SRGB_APPROX(m_var) m_var = pow(m_var,0.4545454545);
-/*
-#define SRGB_APPROX(m_var) {\
-	float S1 = sqrt(m_var);\
-	float S2 = sqrt(S1);\
-	float S3 = sqrt(S2);\
-	m_var = 0.662002687 * S1 + 0.684122060 * S2 - 0.323583601 * S3 - 0.0225411470 * m_var;\
-	}
-*/
-//#define SRGB_APPROX(m_var)
+	//#define SRGB_APPROX(m_var) m_var = pow(m_var,0.4545454545);
+	/*
+	#define SRGB_APPROX(m_var) {\
+		float S1 = sqrt(m_var);\
+		float S2 = sqrt(S1);\
+		float S3 = sqrt(S2);\
+		m_var = 0.662002687 * S1 + 0.684122060 * S2 - 0.323583601 * S3 - 0.0225411470 * m_var;\
+		}
+	*/
+	//#define SRGB_APPROX(m_var)
 
 	float NdotL = dot(N, L);
 	float cNdotL = max(NdotL, 0.0); // clamped NdotL
@@ -1272,19 +1272,19 @@ void light_compute(
 		inout vec3 diffuse_light,
 		inout vec3 specular_light,
 		inout float alpha) {
-//this makes lights behave closer to linear, but then addition of lights looks bad
-//better left disabled
+	//this makes lights behave closer to linear, but then addition of lights looks bad
+	//better left disabled
 
-//#define SRGB_APPROX(m_var) m_var = pow(m_var,0.4545454545);
-/*
-#define SRGB_APPROX(m_var) {\
-	float S1 = sqrt(m_var);\
-	float S2 = sqrt(S1);\
-	float S3 = sqrt(S2);\
-	m_var = 0.662002687 * S1 + 0.684122060 * S2 - 0.323583601 * S3 - 0.0225411470 * m_var;\
-	}
-*/
-//#define SRGB_APPROX(m_var)
+	//#define SRGB_APPROX(m_var) m_var = pow(m_var,0.4545454545);
+	/*
+	#define SRGB_APPROX(m_var) {\
+		float S1 = sqrt(m_var);\
+		float S2 = sqrt(S1);\
+		float S3 = sqrt(S2);\
+		m_var = 0.662002687 * S1 + 0.684122060 * S2 - 0.323583601 * S3 - 0.0225411470 * m_var;\
+		}
+	*/
+	//#define SRGB_APPROX(m_var)
 
 #if defined(USE_LIGHT_SHADER_CODE)
 	// light is written by the light shader

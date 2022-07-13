@@ -7,7 +7,6 @@
 /*************************************************************************/
 /* Copyright (c) 2007-2022 Juan Linietsky, Ariel Manzur.                 */
 /* Copyright (c) 2014-2022 Godot Engine contributors (cf. AUTHORS.md).   */
-/* Copyright (c) 2022 Jaylon Gowie                                       */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -28,24 +27,24 @@
 /* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
+
 #ifndef VITA_EXPORT_H
 #define VITA_EXPORT_H
 
+#include "core/io/file_access_memory.h"
 #include "editor/editor_export.h"
+#include "editor/editor_node.h"
 #include "platform/vita/logo.gen.h"
 #include "scene/resources/texture.h"
-#include "editor/editor_node.h"
-#include "core/io/file_access_memory.h"
 
 typedef struct ParamSFOStruct {
-    String title;
+	String title;
 	String title_long;
-    String title_id;
-    String author;
+	String title_id;
+	String author;
 	String version;
-    int parental_level;
+	int parental_level;
 } ParamSFOStruct;
-
 
 int mksfoex(ParamSFOStruct *sfo, String outDir);
 void register_vita_exporter();

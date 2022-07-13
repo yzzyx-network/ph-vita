@@ -5,8 +5,8 @@
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2007-2022 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2022 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -47,37 +47,35 @@ protected:
 };
 
 class EditorExportPlatformVita : public EditorExportPlatform {
-
 	GDCLASS(EditorExportPlatformVita, EditorExportPlatform)
 
 	Ref<ImageTexture> logo;
 
-    ExportPluginVita *export_plugin;
+	ExportPluginVita *export_plugin;
 
 public:
-
 	virtual void get_preset_features(const Ref<EditorExportPreset> &p_preset, List<String> *r_features) {
-        String driver = ProjectSettings::get_singleton()->get("rendering/quality/driver/driver_name");
-        if (driver == "GLES2") {
-            r_features->push_back("etc");
-        } else if (driver == "GLES3") {
-            if (ProjectSettings::get_singleton()->get("rendering/quality/driver/fallback_to_gles2")) {
-                r_features->push_back("etc");
-            }
-        }
+		String driver = ProjectSettings::get_singleton()->get("rendering/quality/driver/driver_name");
+		if (driver == "GLES2") {
+			r_features->push_back("etc");
+		} else if (driver == "GLES3") {
+			if (ProjectSettings::get_singleton()->get("rendering/quality/driver/fallback_to_gles2")) {
+				r_features->push_back("etc");
+			}
+		}
 	}
 
 	virtual void get_export_options(List<ExportOption> *r_options) {
-        String title = ProjectSettings::get_singleton()->get("application/config/name");
-        r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "param_sfo/title", PROPERTY_HINT_PLACEHOLDER_TEXT, title), title));
-        r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "param_sfo/title_id", PROPERTY_HINT_PLACEHOLDER_TEXT, "GDOT00001 (Make sure it's CAPITALIZED and 9 characters MAX"), "GDOT00001"));
+		String title = ProjectSettings::get_singleton()->get("application/config/name");
+		r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "param_sfo/title", PROPERTY_HINT_PLACEHOLDER_TEXT, title), title));
+		r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "param_sfo/title_id", PROPERTY_HINT_PLACEHOLDER_TEXT, "GDOT00001 (Make sure it's CAPITALIZED and 9 characters MAX"), "GDOT00001"));
 		r_options->push_back(ExportOption(PropertyInfo(Variant::INT, "param_sfo/parental_level", PROPERTY_HINT_MAX, "11"), 1));
-        r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "param_sfo/version", PROPERTY_HINT_PLACEHOLDER_TEXT, "Game Version XX.YY"), "01.00"));
+		r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "param_sfo/version", PROPERTY_HINT_PLACEHOLDER_TEXT, "Game Version XX.YY"), "01.00"));
 		r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "assets/bubble_icon_128x128", PROPERTY_HINT_GLOBAL_FILE, "*.png"), ""));
-        r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "assets/launch_splash_960x544", PROPERTY_HINT_GLOBAL_FILE, "*.png"), ""));
-        r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "assets/livearea_bg_840x500", PROPERTY_HINT_GLOBAL_FILE, "*.png"), ""));
-        r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "assets/livearea_startup_button_280x158", PROPERTY_HINT_GLOBAL_FILE, "*.png"), ""));
-    }
+		r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "assets/launch_splash_960x544", PROPERTY_HINT_GLOBAL_FILE, "*.png"), ""));
+		r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "assets/livearea_bg_840x500", PROPERTY_HINT_GLOBAL_FILE, "*.png"), ""));
+		r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "assets/livearea_startup_button_280x158", PROPERTY_HINT_GLOBAL_FILE, "*.png"), ""));
+	}
 
 	virtual String get_name() const {
 		return "PlayStation Vita";
@@ -206,54 +204,54 @@ public:
 		memdelete(da);
 	}
 
-    void create_vpk(String outVpk, String dir) {
-        FileAccess *dst_f = nullptr;
+	void create_vpk(String outVpk, String dir) {
+		FileAccess *dst_f = nullptr;
 		zlib_filefunc_def io_dst = zipio_create_io_from_file(&dst_f);
 		zipFile zip = zipOpen2(outVpk.utf8().get_data(), APPEND_STATUS_CREATE, nullptr, &io_dst);
-        _zip_folder_recursive(zip, dir, "");
-        zipClose(zip, NULL);
-    }
+		_zip_folder_recursive(zip, dir, "");
+		zipClose(zip, NULL);
+	}
 
 	virtual Error export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, const String &p_path, int p_flags = 0) {
 		ExportNotifier notifier(*this, p_preset, p_debug, p_path, p_flags);
 
-        const String base_dir = p_path.get_base_dir();
-        const String base_path = p_path.get_basename();
-        const String base_name = p_path.get_file().get_basename();
+		const String base_dir = p_path.get_base_dir();
+		const String base_path = p_path.get_basename();
+		const String base_name = p_path.get_file().get_basename();
 
-        if (!DirAccess::exists(base_dir)) {
-            return ERR_FILE_BAD_PATH;
-        }
+		if (!DirAccess::exists(base_dir)) {
+			return ERR_FILE_BAD_PATH;
+		}
 
-        String template_path = find_export_template(TEMPLATE_RELEASE);
-        if (template_path != String() && !FileAccess::exists(template_path)) {
-            add_message(EXPORT_MESSAGE_ERROR, TTR("Prepare Templates"), vformat(TTR("Template file not found: \"%s\"."), template_path));
-            return ERR_FILE_NOT_FOUND;
-        }
+		String template_path = find_export_template(TEMPLATE_RELEASE);
+		if (template_path != String() && !FileAccess::exists(template_path)) {
+			add_message(EXPORT_MESSAGE_ERROR, TTR("Prepare Templates"), vformat(TTR("Template file not found: \"%s\"."), template_path));
+			return ERR_FILE_NOT_FOUND;
+		}
 
-        DirAccess *da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
+		DirAccess *da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
 
-        Error err;
+		Error err;
 		// update nro icon/title/author/version
-        ParamSFOStruct *sfo = memnew(ParamSFOStruct);
+		ParamSFOStruct *sfo = memnew(ParamSFOStruct);
 
 		sfo->title = p_preset->get("param_sfo/title");
-        sfo->title_id = p_preset->get("param_sfo/title_id");
+		sfo->title_id = p_preset->get("param_sfo/title_id");
 		sfo->version = p_preset->get("param_sfo/version");
-        sfo->parental_level = p_preset->get("param_sfo/parental_level");
+		sfo->parental_level = p_preset->get("param_sfo/parental_level");
 
-        String icon = p_preset->get("assets/bubble_icon_128x128");
-        String splash = p_preset->get("assets/launch_splash_960x544");
-        String livearea_bg = p_preset->get("assets/livearea_bg_840x500");
-        String livearea_startup_button = p_preset->get("assets/livearea_startup_button_280x158");
+		String icon = p_preset->get("assets/bubble_icon_128x128");
+		String splash = p_preset->get("assets/launch_splash_960x544");
+		String livearea_bg = p_preset->get("assets/livearea_bg_840x500");
+		String livearea_startup_button = p_preset->get("assets/livearea_startup_button_280x158");
 
-        String cache = EditorSettings::get_singleton()->get_cache_dir();
-        String app_dir = cache.plus_file("app");
-        da->make_dir(app_dir);
-        String game_data_dir = app_dir.plus_file("game_data");
-        da->make_dir(game_data_dir);
+		String cache = EditorSettings::get_singleton()->get_cache_dir();
+		String app_dir = cache.plus_file("app");
+		da->make_dir(app_dir);
+		String game_data_dir = app_dir.plus_file("game_data");
+		da->make_dir(game_data_dir);
 		da->make_dir(app_dir.plus_file("module"));
-        da->make_dir_recursive(app_dir.plus_file("sce_sys/livearea/contents"));
+		da->make_dir_recursive(app_dir.plus_file("sce_sys/livearea/contents"));
 
 		FileAccess *src_f = nullptr;
 		zlib_filefunc_def io = zipio_create_io_from_file(&src_f);
@@ -299,7 +297,6 @@ public:
 			fa->flush();
 			fa->close();
 
-
 			ret = unzGoToNextFile(pkg);
 		}
 
@@ -308,46 +305,45 @@ public:
 		//String current_version = VERSION_FULL_CONFIG;
 		//String template_path = EditorSettings::get_singleton()->get_templates_dir().plus_file(current_version);
 
-        err = save_pack(p_preset, game_data_dir.plus_file("game.pck"));
-        mksfoex(sfo, app_dir.plus_file("sce_sys"));
-        if (err == OK) {
-            if (icon != String() && FileAccess::exists(icon)) {
-                da->copy(icon, app_dir.plus_file("sce_sys/icon0.png"));
-            }
-            if (splash != String() && FileAccess::exists(splash)) {
-                da->copy(splash, app_dir.plus_file("sce_sys/pic0.png"));
-            }
-            if (livearea_bg != String() && FileAccess::exists(livearea_bg)) {
-                da->copy(livearea_bg, app_dir.plus_file("sce_sys/livearea/contents/bg.png"));
-            }
-            if (livearea_startup_button != String() && FileAccess::exists(livearea_startup_button)) {
-                da->copy(livearea_startup_button, app_dir.plus_file("sce_sys/livearea/contents/startup.png"));
-            }
-        }
+		err = save_pack(p_preset, game_data_dir.plus_file("game.pck"));
+		mksfoex(sfo, app_dir.plus_file("sce_sys"));
+		if (err == OK) {
+			if (icon != String() && FileAccess::exists(icon)) {
+				da->copy(icon, app_dir.plus_file("sce_sys/icon0.png"));
+			}
+			if (splash != String() && FileAccess::exists(splash)) {
+				da->copy(splash, app_dir.plus_file("sce_sys/pic0.png"));
+			}
+			if (livearea_bg != String() && FileAccess::exists(livearea_bg)) {
+				da->copy(livearea_bg, app_dir.plus_file("sce_sys/livearea/contents/bg.png"));
+			}
+			if (livearea_startup_button != String() && FileAccess::exists(livearea_startup_button)) {
+				da->copy(livearea_startup_button, app_dir.plus_file("sce_sys/livearea/contents/startup.png"));
+			}
+		}
 
-        create_vpk(sfo->title + ".vpk", app_dir);
-        memdelete(sfo);
-        memdelete(da);
-        da = nullptr;
+		create_vpk(sfo->title + ".vpk", app_dir);
+		memdelete(sfo);
+		memdelete(da);
+		da = nullptr;
 
-        return OK;
+		return OK;
 	}
 
 	virtual void get_platform_features(List<String> *r_features) {
-        r_features->push_back("mobile");
-        r_features->push_back(get_os_name());
+		r_features->push_back("mobile");
+		r_features->push_back(get_os_name());
 	}
 
 	virtual void resolve_platform_feature_priorities(const Ref<EditorExportPreset> &p_preset, Set<String> &p_features) {
 	}
 
 	EditorExportPlatformVita() {
-
 		Ref<Image> img = memnew(Image(_vita_logo));
 		logo.instance();
 		logo->create_from_image(img);
 
-        export_plugin = memnew(ExportPluginVita);
+		export_plugin = memnew(ExportPluginVita);
 		EditorExport::get_singleton()->add_export_plugin(export_plugin);
 	}
 
@@ -356,7 +352,6 @@ public:
 };
 
 void register_vita_exporter() {
-
 	Ref<EditorExportPlatformVita> exporter = Ref<EditorExportPlatformVita>(memnew(EditorExportPlatformVita));
 	EditorExport::get_singleton()->add_export_platform(exporter);
 }

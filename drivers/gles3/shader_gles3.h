@@ -390,7 +390,9 @@ public:
 	GLint get_uniform_location(const String &p_name) const;
 	GLint get_uniform_location(int p_index) const;
 
-	static _FORCE_INLINE_ ShaderGLES3 *get_active() { return active; };
+	static _FORCE_INLINE_ ShaderGLES3 *get_active() {
+		return active;
+	};
 	bool bind();
 	void unbind();
 
@@ -402,9 +404,15 @@ public:
 	void free_custom_shader(uint32_t p_code_id);
 	bool is_custom_code_ready_for_render(uint32_t p_code_id);
 
-	uint32_t get_version() const { return new_conditional_version.version; }
-	bool is_version_ubershader() const { return (new_conditional_version.version & VersionKey::UBERSHADER_FLAG); }
-	_FORCE_INLINE_ bool is_version_valid() const { return version && version->compile_status == Version::COMPILE_STATUS_OK; }
+	uint32_t get_version() const {
+		return new_conditional_version.version;
+	}
+	bool is_version_ubershader() const {
+		return (new_conditional_version.version & VersionKey::UBERSHADER_FLAG);
+	}
+	_FORCE_INLINE_ bool is_version_valid() const {
+		return version && version->compile_status == Version::COMPILE_STATUS_OK;
+	}
 
 	virtual void init() = 0;
 	void init_async_compilation(GLuint p_depth_tex);

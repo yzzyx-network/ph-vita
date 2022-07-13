@@ -7,7 +7,6 @@
 /*************************************************************************/
 /* Copyright (c) 2007-2022 Juan Linietsky, Ariel Manzur.                 */
 /* Copyright (c) 2014-2022 Godot Engine contributors (cf. AUTHORS.md).   */
-/* Copyright (c) 2022 Jaylon Gowie                                       */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -40,18 +39,17 @@
 static int portId = -1;
 
 Error AudioDriverVita::init_device() {
-
 	int latency = GLOBAL_GET("audio/output_latency");
 	mix_rate = GLOBAL_GET("audio/mix_rate");
 	channels = 2;
-    portId = -1;
+	portId = -1;
 	speaker_mode = SPEAKER_MODE_STEREO;
 	buffer_size = closest_power_of_2(latency * mix_rate / 1000);
 	samples_in.resize(buffer_size * channels);
 	samples_out.resize(buffer_size * channels);
 
 	portId = sceAudioOutOpenPort(SCE_AUDIO_OUT_PORT_TYPE_BGM, buffer_size, mix_rate, SCE_AUDIO_OUT_MODE_STEREO);
-	if(portId < 0){
+	if (portId < 0) {
 		return FAILED;
 	}
 
@@ -75,7 +73,6 @@ void AudioDriverVita::thread_func(void *p_udata) {
 	AudioDriverVita *ad = (AudioDriverVita *)p_udata;
 
 	while (!ad->exit_thread) {
-
 		ad->lock();
 		ad->start_counting_ticks();
 
@@ -109,7 +106,6 @@ int AudioDriverVita::get_mix_rate() const {
 }
 
 AudioDriver::SpeakerMode AudioDriverVita::get_speaker_mode() const {
-
 	return speaker_mode;
 }
 

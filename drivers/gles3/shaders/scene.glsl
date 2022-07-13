@@ -1979,34 +1979,34 @@ FRAGMENT_SHADER_CODE
 	{
 		{ //read radiance from dual paraboloid
 
-			vec3 ref_vec = reflect(-eye_vec, normal);
-			float horizon = min(1.0 + dot(ref_vec, normal), 1.0);
-			ref_vec = normalize((radiance_inverse_xform * vec4(ref_vec, 0.0)).xyz);
-			vec3 radiance;
+				vec3 ref_vec = reflect(-eye_vec, normal);
+	float horizon = min(1.0 + dot(ref_vec, normal), 1.0);
+	ref_vec = normalize((radiance_inverse_xform * vec4(ref_vec, 0.0)).xyz);
+	vec3 radiance;
 #ifdef USE_RADIANCE_MAP_ARRAY //ubershader-runtime
-			radiance = textureDualParaboloidArray(radiance_map_array, ref_vec, roughness) * bg_energy;
+	radiance = textureDualParaboloidArray(radiance_map_array, ref_vec, roughness) * bg_energy;
 #else //ubershader-runtime
-			radiance = textureDualParaboloid(radiance_map, ref_vec, roughness) * bg_energy;
+	radiance = textureDualParaboloid(radiance_map, ref_vec, roughness) * bg_energy;
 #endif //ubershader-runtime
-			env_reflection_light = radiance;
-			env_reflection_light *= horizon * horizon;
-		}
-	}
+	env_reflection_light = radiance;
+	env_reflection_light *= horizon * horizon;
+}
+}
 #ifndef USE_LIGHTMAP //ubershader-runtime
-	{
-		vec3 norm = normal;
-		norm = normalize((radiance_inverse_xform * vec4(norm, 0.0)).xyz);
-		norm.xy /= 1.0 + abs(norm.z);
-		norm.xy = norm.xy * vec2(0.5, 0.25) + vec2(0.5, 0.25);
-		if (norm.z > 0.0001) {
-			norm.y = 0.5 - norm.y + 0.5;
-		}
-
-		vec3 env_ambient = texture(irradiance_map, norm.xy).rgb * bg_energy;
-		env_ambient *= 1.0 - F;
-
-		ambient_light = mix(ambient_light_color.rgb, env_ambient, radiance_ambient_contribution);
+{
+	vec3 norm = normal;
+	norm = normalize((radiance_inverse_xform * vec4(norm, 0.0)).xyz);
+	norm.xy /= 1.0 + abs(norm.z);
+	norm.xy = norm.xy * vec2(0.5, 0.25) + vec2(0.5, 0.25);
+	if (norm.z > 0.0001) {
+		norm.y = 0.5 - norm.y + 0.5;
 	}
+
+	vec3 env_ambient = texture(irradiance_map, norm.xy).rgb * bg_energy;
+	env_ambient *= 1.0 - F;
+
+	ambient_light = mix(ambient_light_color.rgb, env_ambient, radiance_ambient_contribution);
+}
 #endif //ubershader-runtime
 #endif //AMBIENT_LIGHT_DISABLED
 
@@ -2038,7 +2038,7 @@ FRAGMENT_SHADER_CODE
 #ifdef USE_LIGHTMAP_LAYERED //ubershader-runtime
 	ambient_light = LIGHTMAP_TEXTURE_LAYERED_SAMPLE(lightmap_array, vec3(uv2, float(lightmap_layer))).rgb * lightmap_energy;
 #else //ubershader-runtime
-	ambient_light = LIGHTMAP_TEXTURE_SAMPLE(lightmap, uv2).rgb * lightmap_energy;
+ambient_light = LIGHTMAP_TEXTURE_SAMPLE(lightmap, uv2).rgb * lightmap_energy;
 #endif //ubershader-runtime
 #endif //ubershader-runtime
 
@@ -2259,7 +2259,7 @@ FRAGMENT_SHADER_CODE
 	specular_light *= mix(vec3(1.0), light_attenuation, specular_light_interp.a);
 
 #else //ubershader-runtime
-	light_compute(normal, -light_direction_attenuation.xyz, eye_vec, binormal, tangent, light_color_energy.rgb, light_attenuation, albedo, transmission, light_params.z * specular_blob_intensity, roughness, metallic, specular, rim, rim_tint, clearcoat, clearcoat_gloss, anisotropy, diffuse_light, specular_light, alpha);
+light_compute(normal, -light_direction_attenuation.xyz, eye_vec, binormal, tangent, light_color_energy.rgb, light_attenuation, albedo, transmission, light_params.z *specular_blob_intensity, roughness, metallic, specular, rim, rim_tint, clearcoat, clearcoat_gloss, anisotropy, diffuse_light, specular_light, alpha);
 #endif //ubershader-runtime
 
 #endif //#USE_LIGHT_DIRECTIONAL //ubershader-runtime

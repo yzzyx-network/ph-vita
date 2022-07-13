@@ -7,7 +7,6 @@
 /*************************************************************************/
 /* Copyright (c) 2007-2022 Juan Linietsky, Ariel Manzur.                 */
 /* Copyright (c) 2014-2022 Godot Engine contributors (cf. AUTHORS.md).   */
-/* Copyright (c) 2022 Jaylon Gowie                                       */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -32,15 +31,15 @@
 #include "os_vita.h"
 
 #include "core/array.h"
+#include "drivers/dummy/rasterizer_dummy.h"
+#include "drivers/dummy/texture_loader_dummy.h"
+#include "drivers/gles2/rasterizer_gles2.h"
+#include "drivers/unix/dir_access_unix.h"
+#include "drivers/unix/file_access_unix.h"
 #include "drivers/unix/ip_unix.h"
 #include "drivers/unix/net_socket_posix.h"
 #include "drivers/unix/thread_posix.h"
-#include "drivers/gles2/rasterizer_gles2.h"
 #include "main/main.h"
-#include "drivers/unix/dir_access_unix.h"
-#include "drivers/unix/file_access_unix.h"
-#include "drivers/dummy/rasterizer_dummy.h"
-#include "drivers/dummy/texture_loader_dummy.h"
 #include "servers/audio_server.h"
 #include "servers/visual/visual_server_raster.h"
 #include "servers/visual/visual_server_wrap_mt.h"
@@ -98,7 +97,7 @@ Error OS_Vita::initialize(const VideoMode &p_desired, int p_video_driver, int p_
 	} else {
 		OS::get_singleton()->alert("OpenGL ES 3 is not supported on this device.\n\n"
 								   "Please enable the option \"Fallback to OpenGL ES 2.0\" in the options menu.\n",
-								   "OpenGL ES 3 Not Supported");
+				"OpenGL ES 3 Not Supported");
 		gl_initialization_error = true;
 	}
 
@@ -126,7 +125,7 @@ Error OS_Vita::initialize(const VideoMode &p_desired, int p_video_driver, int p_
 	if (gl_initialization_error) {
 		OS::get_singleton()->alert("Your device does not support any of the supported OpenGL versions.\n"
 								   "Please check your graphics drivers and try again.\n",
-								   "Graphics Driver Error");
+				"Graphics Driver Error");
 		return ERR_UNAVAILABLE;
 	}
 
@@ -210,7 +209,7 @@ MainLoop *OS_Vita::get_main_loop() const {
 }
 
 void OS_Vita::swap_buffers() {
-    gl_context->swap_buffers();
+	gl_context->swap_buffers();
 }
 
 bool OS_Vita::can_draw() const {
@@ -240,7 +239,7 @@ void OS_Vita::process_touch() {
 
 	if (touch.reportNum != last_touch_count) {
 		if (touch.reportNum > last_touch_count) { // new touches
-			for(uint32_t i = last_touch_count; i < touch.reportNum; i++) {
+			for (uint32_t i = last_touch_count; i < touch.reportNum; i++) {
 				Vector2 pos(touch.report[i].x, touch.report[i].y);
 				pos /= front_panel_size;
 				pos *= Vector2(960, 544);
@@ -252,7 +251,7 @@ void OS_Vita::process_touch() {
 				input->parse_input_event(st);
 			}
 		} else { // lost touches
-			for(uint32_t i = touch.reportNum; i < last_touch_count; i++) {
+			for (uint32_t i = touch.reportNum; i < last_touch_count; i++) {
 				Ref<InputEventScreenTouch> st;
 				st.instance();
 				st->set_index(i);
@@ -349,8 +348,7 @@ bool OS_Vita::_check_internal_feature_support(const String &p_feature) {
 	return false;
 }
 
-OS_Vita::OS_Vita()
-{
+OS_Vita::OS_Vita() {
 	video_mode.width = 960;
 	video_mode.height = 544;
 	video_mode.fullscreen = true;
@@ -421,4 +419,6 @@ uint64_t OS_Vita::get_ticks_usec() const {
 	return current_tick.tick / (tick_resolution / 1000000);
 }
 
-String OS_Vita::get_stdin_string(bool p_block) { return ""; }
+String OS_Vita::get_stdin_string(bool p_block) {
+	return "";
+}

@@ -7,7 +7,6 @@
 /*************************************************************************/
 /* Copyright (c) 2007-2022 Juan Linietsky, Ariel Manzur.                 */
 /* Copyright (c) 2014-2022 Godot Engine contributors (cf. AUTHORS.md).   */
-/* Copyright (c) 2022 Jaylon Gowie                                       */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -60,7 +59,7 @@ void ContextEGL_Vita::swap_buffers() {
 };
 
 Error ContextEGL_Vita::initialize() {
-    // Get an appropriate EGL framebuffer configuration
+	// Get an appropriate EGL framebuffer configuration
 	static const EGLint attributeList[] = {
 		EGL_RED_SIZE, 8,
 		EGL_GREEN_SIZE, 8,
@@ -68,50 +67,50 @@ Error ContextEGL_Vita::initialize() {
 		EGL_ALPHA_SIZE, 8,
 		EGL_DEPTH_SIZE, 8,
 		EGL_STENCIL_SIZE, 8,
-        EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
+		EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
 		EGL_NONE
 	};
 
-    static const EGLint contextAttributeList[] = {
+	static const EGLint contextAttributeList[] = {
 		EGL_CONTEXT_CLIENT_VERSION, 2,
 		EGL_NONE
 	};
 
-    EGLConfig config = nullptr;
+	EGLConfig config = nullptr;
 	EGLint numConfigs = 0;
 
-    // Initialize PVR_PSP2
-    PVRSRV_PSP2_APPHINT hint;
+	// Initialize PVR_PSP2
+	PVRSRV_PSP2_APPHINT hint;
 
-    sceKernelLoadStartModule("app0:module/libgpu_es4_ext.suprx", 0, NULL, 0, NULL, NULL);
-    sceKernelLoadStartModule("app0:module/libIMGEGL.suprx", 0, NULL, 0, NULL, NULL);
+	sceKernelLoadStartModule("app0:module/libgpu_es4_ext.suprx", 0, NULL, 0, NULL, NULL);
+	sceKernelLoadStartModule("app0:module/libIMGEGL.suprx", 0, NULL, 0, NULL, NULL);
 
-    PVRSRVInitializeAppHint(&hint);
+	PVRSRVInitializeAppHint(&hint);
 	hint.ui32SwTexOpCleanupDelay = 16000;
-    PVRSRVCreateVirtualAppHint(&hint);
+	PVRSRVCreateVirtualAppHint(&hint);
 
-    // Connect to the EGL default display
+	// Connect to the EGL default display
 	display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-    if (!display) {
+	if (!display) {
 		goto _fail0;
 	}
 
-    // Initialize the display
+	// Initialize the display
 	eglInitialize(display, NULL, NULL);
 
-     // Get avaiable EGL framebuffer configurations
-    eglChooseConfig(display, attributeList, &config, 1, &numConfigs);
-    if (numConfigs == 0) {
+	// Get avaiable EGL framebuffer configurations
+	eglChooseConfig(display, attributeList, &config, 1, &numConfigs);
+	if (numConfigs == 0) {
 		goto _fail1;
 	}
 
 	// Create an EGL window surface
-    window.type = PSP2_DRAWABLE_TYPE_WINDOW;
-    window.numFlipBuffers = 2;
-    window.flipChainThrdAffinity = 0x20000;
-    window.windowSize = PSP2_WINDOW_960X544;
+	window.type = PSP2_DRAWABLE_TYPE_WINDOW;
+	window.numFlipBuffers = 2;
+	window.flipChainThrdAffinity = 0x20000;
+	window.windowSize = PSP2_WINDOW_960X544;
 
-    // Create a window surface
+	// Create a window surface
 	surface = eglCreateWindowSurface(display, config, &window, NULL);
 	if (!surface) {
 		goto _fail1;
@@ -126,7 +125,7 @@ Error ContextEGL_Vita::initialize() {
 	// Connect the context to the surface
 	eglMakeCurrent(display, surface, surface, context);
 
-    eglQuerySurface(display, surface, EGL_WIDTH, &width);
+	eglQuerySurface(display, surface, EGL_WIDTH, &width);
 	eglQuerySurface(display, surface, EGL_HEIGHT, &height);
 
 	return OK;

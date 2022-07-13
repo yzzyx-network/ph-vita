@@ -7,7 +7,6 @@
 /*************************************************************************/
 /* Copyright (c) 2007-2022 Juan Linietsky, Ariel Manzur.                 */
 /* Copyright (c) 2014-2022 Godot Engine contributors (cf. AUTHORS.md).   */
-/* Copyright (c) 2022 Jaylon Gowie                                       */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -34,19 +33,19 @@
 
 #include "audio_driver_vita.h"
 #include "context_egl_vita.h"
-#include "joypad_vita.h"
+#include "core/os/os.h"
 #include "drivers/dummy/texture_loader_dummy.h"
 #include "drivers/unix/os_unix.h"
-#include "core/os/os.h"
+#include "joypad_vita.h"
 #include "main/input_default.h"
 #include "servers/audio_server.h"
 #include "servers/visual/rasterizer.h"
 
 #include <psp2/appmgr.h>
+#include <psp2/kernel/clib.h>
 #include <psp2/kernel/processmgr.h>
 #include <psp2/kernel/threadmgr.h>
 #include <psp2/power.h>
-#include <psp2/kernel/clib.h>
 #include <psp2/rtc.h>
 
 class OS_Vita : public OS {
@@ -62,14 +61,14 @@ class OS_Vita : public OS {
 	JoypadVita *joypad;
 
 	Vector2 last_touch_pos[SCE_TOUCH_MAX_REPORT];
-    SceTouchData touch;
-    SceTouchPanelInfo front_panel_info;
-    Vector2 front_panel_size;
-    void process_touch();
+	SceTouchData touch;
+	SceTouchPanelInfo front_panel_info;
+	Vector2 front_panel_size;
+	void process_touch();
 
 	MainLoop *main_loop;
-protected:
 
+protected:
 	virtual void initialize_core();
 	virtual Error initialize(const VideoMode &p_desired, int p_video_driver, int p_audio_driver);
 
@@ -132,18 +131,17 @@ public:
 
 	// Misc
 	virtual Error execute(const String &p_path, const List<String> &p_arguments, bool p_blocking = true, ProcessID *r_child_id = nullptr, String *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr, bool p_open_console = false);
-    virtual Error kill(const ProcessID &p_pid);
+	virtual Error kill(const ProcessID &p_pid);
 	virtual bool is_process_running(const ProcessID &p_pid) const;
 	virtual Date get_date(bool local = false) const;
-    virtual Time get_time(bool local = false) const;
-    virtual TimeZoneInfo get_time_zone_info() const;
-    virtual void delay_usec(uint32_t p_usec) const;
-    virtual uint64_t get_ticks_usec() const;
-    virtual String get_stdin_string(bool p_block = true);
+	virtual Time get_time(bool local = false) const;
+	virtual TimeZoneInfo get_time_zone_info() const;
+	virtual void delay_usec(uint32_t p_usec) const;
+	virtual uint64_t get_ticks_usec() const;
+	virtual String get_stdin_string(bool p_block = true);
 	virtual bool has_environment(const String &p_var) const;
-    virtual String get_environment(const String &p_var) const;
-    virtual bool set_environment(const String &p_var, const String &p_value) const;
-
+	virtual String get_environment(const String &p_var) const;
+	virtual bool set_environment(const String &p_var, const String &p_value) const;
 };
 
 #endif // OS_VITA_H
