@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "export.h"
+#include "core/io/zip_io.h"
 #include "core/version.h"
 
 #define TEMPLATE_RELEASE "vita_release.zip"
