@@ -28,5 +28,5 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 #define GLES2_INCLUDE_H <GLES2/gl2.h>// Dummy Include for sake of compiling
- 
+
 #include <alloca.h>

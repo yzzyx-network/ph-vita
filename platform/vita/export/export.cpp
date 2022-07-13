@@ -29,7 +29,6 @@
 /*************************************************************************/
 
 #include "export.h"
-#include "zipper.h"
 #include "core/version.h"
 
 #define TEMPLATE_RELEASE "vita_release.zip"
@@ -211,7 +210,7 @@ public:
 		zlib_filefunc_def io_dst = zipio_create_io_from_file(&dst_f);
 		zipFile zip = zipOpen2(outVpk.utf8().get_data(), APPEND_STATUS_CREATE, nullptr, &io_dst);
         _zip_folder_recursive(zip, dir, "");
-        zipClose(zip, NULL); 
+        zipClose(zip, NULL);
     }
 
 	virtual Error export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, const String &p_path, int p_flags = 0) {
@@ -266,9 +265,6 @@ public:
 		}
 
 		int ret = unzGoToFirstFile(pkg);
-
-		int template_files_amount = 9;
-		int template_file_no = 1;
 
 		while (ret == UNZ_OK) {
 			// get file name

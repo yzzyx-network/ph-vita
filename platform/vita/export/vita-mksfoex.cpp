@@ -8,6 +8,7 @@
 # New and improved mksfo
 # $Id$
 */
+#define _CRT_SECURE_NO_DEPRECATE
 
 #include "export.h"
 #include <stdio.h>
@@ -19,7 +20,7 @@
 #define PSF_MAGIC	0x46535000
 #define PSF_VERSION  0x00000101
 
-struct SfoHeader 
+struct SfoHeader
 {
 	uint32_t magic;
 	uint32_t version;
@@ -75,7 +76,6 @@ struct EntryContainer g_defaults[] = {
 #define MAX_OPTIONS (256)
 
 static const char *g_title = NULL;
-static const char *g_filename = "param.sfo";
 static int g_empty = 0;
 static struct EntryContainer g_vals[MAX_OPTIONS];
 
@@ -122,7 +122,7 @@ int add_string(char *str)
 	}
 
 	*equals++ = 0;
-	
+
 	if ((entry = find_name(str)))
 	{
 		entry->data = equals;
@@ -141,7 +141,7 @@ int add_string(char *str)
 		entry->type = PSF_TYPE_STR;
 		entry->data = equals;
 	}
-	
+
 	return 1;
 }
 
@@ -175,13 +175,13 @@ int add_dword(char *str)
 		memset(entry, 0, sizeof(struct EntryContainer));
 		entry->name = str;
 		entry->type = PSF_TYPE_VAL;
-		entry->value = strtoul(equals, NULL, 0);		
+		entry->value = strtoul(equals, NULL, 0);
 	}
 
 	return 1;
 }
 
-int mksfoex(ParamSFOStruct *sfo, String &outDir)
+int mksfoex(ParamSFOStruct *sfo, String outDir)
 {
 	FILE *fp;
 	int i;
@@ -244,7 +244,7 @@ int mksfoex(ParamSFOStruct *sfo, String &outDir)
             entry->value = sfo->parental_level;
         }
     }
-	
+
     if (sfo->title.length() > 0)
     {
         g_title = sfo->title.utf8().get_data();
@@ -296,7 +296,7 @@ int mksfoex(ParamSFOStruct *sfo, String &outDir)
 			SW(&e->valsize, valsize);
 			SW(&e->totalsize, totalsize);
 			memset(d, 0, totalsize);
-			
+
 			if (g_vals[i].data)
 				memcpy(d, g_vals[i].data, valsize);
 			d += totalsize;
@@ -313,11 +313,10 @@ int mksfoex(ParamSFOStruct *sfo, String &outDir)
 		k++;
 		align--;
 	}
-	
+
 	SW(&h->valofs, keyofs + (k-keys));
 
 	String output = outDir+"/param.sfo";
-
 	fp = fopen(output.utf8().get_data(), "wb");
 	if(fp == NULL)
 	{

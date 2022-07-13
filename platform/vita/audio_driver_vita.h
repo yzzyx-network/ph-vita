@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  audio_driver_vita.h                                                */
+/*  audio_driver_vita.h                                                  */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -82,6 +82,6 @@ public:
 
 	AudioDriverVita();
 	~AudioDriverVita();
-}; 
+};
 
 #endif // AUDIO_DRIVER_VITA_H

@@ -17,7 +17,7 @@ def can_build():
     return True
 
 def get_opts():
-    
+
     from SCons.Variables import BoolVariable, EnumVariable
 
     return [
@@ -87,7 +87,7 @@ def configure(env):
             env.Prepend(CCFLAGS=['-O3', '-ffast-math'])
         else: #optimize for size
             env.Prepend(CCFLAGS=['-Os'])
-     
+
         if (env["debug_symbols"] == "yes"):
             env.Prepend(CCFLAGS=['-g1'])
         if (env["debug_symbols"] == "full"):
@@ -150,4 +150,3 @@ def configure(env):
         "-llibGLESv2_stub.a",
     ])
     print(env.get("LIBS"))
-    

@@ -128,7 +128,7 @@ Error ContextEGL_Vita::initialize() {
 
     eglQuerySurface(display, surface, EGL_WIDTH, &width);
 	eglQuerySurface(display, surface, EGL_HEIGHT, &height);
-    
+
 	return OK;
 
 _fail2:
@@ -164,4 +164,3 @@ ContextEGL_Vita::ContextEGL_Vita(bool gles) :
 ContextEGL_Vita::~ContextEGL_Vita() {
 	cleanup();
 }
-

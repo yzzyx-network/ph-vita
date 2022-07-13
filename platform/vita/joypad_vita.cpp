@@ -54,7 +54,7 @@ void JoypadVita::process_joypads() {
     sceCtrlPeekBufferPositive(0, &pad_input, 1);
     uint64_t changed;
     float lx, ly, rx, ry;
-    
+
     lx = ((pad_input.lx) / 255.0f) * 2.0 - 1.0;
     ly = ((pad_input.ly) / 255.0f) * 2.0 - 1.0;
     rx = ((pad_input.rx) / 255.0f) * 2.0 - 1.0;

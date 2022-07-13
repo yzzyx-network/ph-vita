@@ -47,7 +47,7 @@ typedef struct ParamSFOStruct {
 } ParamSFOStruct;
 
 
-int mksfoex(ParamSFOStruct *sfo, String &outDir);
+int mksfoex(ParamSFOStruct *sfo, String outDir);
 void register_vita_exporter();
 
 #endif // VITA_EXPORT_H
