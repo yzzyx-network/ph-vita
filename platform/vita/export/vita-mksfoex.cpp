@@ -192,7 +192,7 @@ int add_dword(char *str) {
 
 int mksfoex(ParamSFOStruct *sfo, String outDir) {
 	FILE *fp;
-	int i;
+	unsigned int i;
 	char head[8192];
 	char keys[8192];
 	char data[8192];
