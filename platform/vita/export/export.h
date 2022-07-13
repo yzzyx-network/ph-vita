@@ -35,6 +35,7 @@
 #include "platform/vita/logo.gen.h"
 #include "scene/resources/texture.h"
 #include "editor/editor_node.h"
+#include "core/io/file_access_memory.h"
 
 typedef struct ParamSFOStruct {
     String title;
@@ -45,6 +46,8 @@ typedef struct ParamSFOStruct {
     int parental_level;
 } ParamSFOStruct;
 
+
+int mksfoex(ParamSFOStruct *sfo, String &outDir);
 void register_vita_exporter();
 
 #endif // VITA_EXPORT_H
