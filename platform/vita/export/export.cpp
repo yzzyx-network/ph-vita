@@ -72,7 +72,7 @@ public:
 		r_options->push_back(ExportOption(PropertyInfo(Variant::INT, "param_sfo/parental_level", PROPERTY_HINT_MAX, "11"), 1));
 		r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "param_sfo/version", PROPERTY_HINT_PLACEHOLDER_TEXT, "Game Version XX.YY"), "01.00"));
 		r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "assets/bubble_icon_128x128", PROPERTY_HINT_GLOBAL_FILE, "*.png"), ""));
-		r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "assets/launch_splash_960x544", PROPERTY_HINT_GLOBAL_FILE, "*.png"), ""));
+		r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "assets/app_splash_960x544", PROPERTY_HINT_GLOBAL_FILE, "*.png"), ""));
 		r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "assets/livearea_bg_840x500", PROPERTY_HINT_GLOBAL_FILE, "*.png"), ""));
 		r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "assets/livearea_startup_button_280x158", PROPERTY_HINT_GLOBAL_FILE, "*.png"), ""));
 	}

@@ -55,14 +55,10 @@ int main(int argc, char *argv[]) {
 	sceKernelLoadStartModule("vs0:sys/external/libfios2.suprx", 0, NULL, 0, NULL, NULL);
 	sceKernelLoadStartModule("vs0:sys/external/libc.suprx", 0, NULL, 0, NULL, NULL);
 
-#if DEVKIT_ENABLED
-	snprintf(app_kernel_module_path, sizeof(app_kernel_module_path), "host0:app/module/libgpu_es4_kernel_ext.skprx");
-#else
 	pid = sceKernelGetProcessId();
 	sceAppMgrAppParamGetString(pid, 12, title_id, sizeof(title_id));
 	snprintf(app_dir_path, sizeof(app_dir_path), "ux0:app/%s", title_id);
 	snprintf(app_kernel_module_path, sizeof(app_kernel_module_path), "%s/module/libgpu_es4_kernel_ext.skprx", app_dir_path);
-#endif
 
 	SceUID res = taiLoadStartKernelModule(app_kernel_module_path, 0, NULL, 0);
 	if (res < 0) {

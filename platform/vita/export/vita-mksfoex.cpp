@@ -252,6 +252,9 @@ int mksfoex(ParamSFOStruct *sfo, String outDir) {
 		entry->data = g_title;
 	}
 
+	entry = find_name("ATTRIBUTE2");
+	entry->value = 12;
+
 	memset(head, 0, sizeof(head));
 	memset(keys, 0, sizeof(keys));
 	memset(data, 0, sizeof(data));
