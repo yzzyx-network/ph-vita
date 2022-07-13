@@ -20,7 +20,7 @@ env.Append(BUILDERS = {
 stripped_elf_path = "#bin/vita_" + env['target'] + "_stripped"
 env.Command(stripped_elf_path, prog, [
     Copy("$TARGET", "$SOURCE"),
-    #"arm-vita-eabi-strip --strip-unneeded $TARGET"
+    "arm-vita-eabi-strip -g $TARGET"
 ])
 env.VitaELF("#bin/vita_" + env['target'] + ".velf", stripped_elf_path)
 env.VitaEBOOT("#bin/eboot.bin", "#bin/vita_" + env['target'] + ".velf")
