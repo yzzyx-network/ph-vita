@@ -145,10 +145,17 @@ Error OS_Vita::initialize(const VideoMode &p_desired, int p_video_driver, int p_
 	input->set_emulate_mouse_from_touch(true);
 	joypad = memnew(JoypadVita(input));
 
+	// Enable SceTouch
 	sceTouchSetSamplingState(SCE_TOUCH_PORT_FRONT, SCE_TOUCH_SAMPLING_STATE_START);
 
 	sceTouchGetPanelInfo(0, &front_panel_info);
 	front_panel_size = Vector2(front_panel_info.maxAaX, front_panel_info.maxAaY);
+
+	// Enable SceMotion (Battery Usage go brrrrrr)
+	sceMotionStartSampling();
+	sceMotionMagnetometerOn();
+
+	sceMotionSetAngleThreshold(45);
 
 	return OK;
 }
@@ -225,6 +232,7 @@ void OS_Vita::run() {
 	while (true) {
 		joypad->process_joypads();
 		process_touch();
+		process_motion();
 
 		if (Main::iteration())
 			break;
@@ -276,6 +284,30 @@ void OS_Vita::process_touch() {
 	}
 
 	last_touch_count = touch.reportNum;
+}
+
+void OS_Vita::process_motion() {
+	sceMotionGetState(&motion_state);
+	process_accelerometer(Vector3(motion_state.acceleration.x, motion_state.acceleration.y, motion_state.acceleration.z));
+	process_gravity(Vector3(motion_state.basicOrientation.x, motion_state.basicOrientation.y, motion_state.basicOrientation.z));
+	process_gyroscope(Vector3(motion_state.angularVelocity.x, motion_state.angularVelocity.y, motion_state.angularVelocity.z));	
+	process_magnetometer(Vector3(0,0,0)); // No idea how to calculate this. I'm not a linear maths guy.
+}
+
+void OS_Vita::process_accelerometer(const Vector3 &m_accelerometer) {
+	input->set_accelerometer(m_accelerometer);
+}
+
+void OS_Vita::process_gravity(const Vector3 &m_gravity) {
+	input->set_gravity(m_gravity);
+}
+
+void OS_Vita::process_magnetometer(const Vector3 &m_magnetometer) {
+	input->set_magnetometer(m_magnetometer);
+}
+
+void OS_Vita::process_gyroscope(const Vector3 &m_gyroscope) {
+	input->set_gyroscope(m_gyroscope);
 }
 
 String OS_Vita::get_data_path() const {

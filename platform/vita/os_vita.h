@@ -66,6 +66,13 @@ class OS_Vita : public OS {
 	Vector2 front_panel_size;
 	void process_touch();
 
+	SceMotionState motion_state;
+	void process_motion();
+	void process_accelerometer(const Vector3 &m_accelerometer);
+	void process_gravity(const Vector3 &m_gravity);
+	void process_magnetometer(const Vector3 &m_magnetometer);
+	void process_gyroscope(const Vector3 &m_gyroscope);
+
 	MainLoop *main_loop;
 
 protected:

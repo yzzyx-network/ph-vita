@@ -134,6 +134,7 @@ def configure(env):
         "SceDisplay_stub",
         "SceFios2_stub",
         "SceCtrl_stub",
+        "SceMotion_stub",
         "SceTouch_stub",
         "SceAudio_stub",
         "ScePower_stub",
