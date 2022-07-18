@@ -112,6 +112,11 @@ PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEEXTPROC glFramebufferTexture2DMultisampleEXT
 #include <GLES2/gl2ext.h>
 #define glRenderbufferStorageMultisample glRenderbufferStorageMultisampleANGLE
 #define glFramebufferTexture2DMultisample glFramebufferTexture2DMultisampleANGLE
+
+#elif defined(VITA_ENABLED)
+#include <GLES2/gl2ext.h>
+#define glRenderbufferStorageMultisample glRenderbufferStorageMultisampleIMG
+#define glFramebufferTexture2DMultisample glFramebufferTexture2DMultisampleIMG
 #endif
 
 #define GL_TEXTURE_3D 0x806F
@@ -5106,7 +5111,6 @@ void RasterizerStorageGLES2::_render_target_allocate(RenderTarget *rt) {
 	/* BACK FBO */
 	/* For MSAA */
 
-#ifndef VITA_ENABLED
 #ifndef JAVASCRIPT_ENABLED
 	if (rt->msaa >= VS::VIEWPORT_MSAA_2X && rt->msaa <= VS::VIEWPORT_MSAA_16X && config.multisample_supported) {
 		rt->multisample_active = true;
@@ -5182,7 +5186,6 @@ void RasterizerStorageGLES2::_render_target_allocate(RenderTarget *rt) {
 
 	} else
 #endif // JAVASCRIPT_ENABLED
-#endif // VITA_ENABLED
 	{
 		rt->multisample_active = false;
 	}
@@ -6235,7 +6238,7 @@ void RasterizerStorageGLES2::initialize() {
 	// If the desktop build is using S3TC, and you export / run from the IDE for android, if the device supports
 	// S3TC it will crash trying to load these textures, as they are not exported in the APK. This is a simple way
 	// to prevent Android devices trying to load S3TC, by faking lack of hardware support.
-#if defined(ANDROID_ENABLED) || defined(IPHONE_ENABLED)
+#if defined(ANDROID_ENABLED) || defined(IPHONE_ENABLED) || defined(VITA_ENABLED)
 	config.s3tc_supported = false;
 #endif
 
