@@ -39,6 +39,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifndef VITA_ENABLED
+#include <sys/ioctl.h>
+#endif
 #include <sys/types.h>
 #include <unistd.h>
 #ifndef NO_FCNTL
@@ -714,12 +717,12 @@ bool NetSocketPosix::is_open() const {
 
 int NetSocketPosix::get_available_bytes() const {
 	ERR_FAIL_COND_V(!is_open(), -1);
-#if defined(NO_FCNTL)
-	unsigned long len;
-	int ret = SOCK_IOCTL(_sock, FIONREAD, &len);
-#else
+#if defined(VITA_ENABLED)
 	ssize_t ret = ::recv(_sock, NULL, 0, MSG_PEEK);
 	ssize_t len = ret;
+#else
+	unsigned long len;
+	int ret = SOCK_IOCTL(_sock, FIONREAD, &len);
 #endif
 	if (ret == -1) {
 		_get_socket_error();
