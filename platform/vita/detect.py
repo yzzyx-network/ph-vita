@@ -32,18 +32,17 @@ def get_flags():
     return [
         ("tools", False),
         ('builtin_bullet', True),
-        ('builtin_enet', False), # Not in portlibs.
+        ('builtin_enet', True), # Not in portlibs.
         ('builtin_libogg', False),
         ('builtin_libvpx', False),
         ('builtin_libwebsockets', True), # Not in portlibs.
-        ('builtin_mbedtls', False),
+        ('builtin_mbedtls', False), # VitaSDK package isn't the correct version btw
         ('builtin_miniupnpc', False),
         ('builtin_opus', False),
-        ('builtin_pcre2', True),
+        ('builtin_pcre2', False),
         ('builtin_pcre2_with_jit', False),
         ('builtin_squish', True), # Not in portlibs.
-        ('builtin_zstd', True), # Not in portlibs.
-        ('module_websocket_enabled', False),
+        ('builtin_zstd', False), # Not in portlibs.
         ('module_mbedtls_enabled', False),
         ('module_upnp_enabled', False),
         ('module_enet_enabled', False),
@@ -78,7 +77,7 @@ def configure(env):
     env.Append(LINKFLAGS=["-Wl,-q,-whole-archive", "-lpthread", "-Wl,-q,-no-whole-archive"])
     print(env.get("CCFLAGS"))
 
-    env.Prepend(CCFLAGS=['-Wl,-q', '-DNO_NETWORK', '-D_POSIX_TIMERS', '-DPTHREAD_ENABLED', '-DUNIX_SOCKET_UNAVAILABLE', '-DVITA_ENABLED', '-DPOSH_COMPILER_GCC', '-DPOSH_OS_VITA', '-DPOSH_OS_STRING=\\"vita\\"', '-D__psp2__'])
+    env.Prepend(CCFLAGS=['-Wl,-q', '-D_POSIX_TIMERS', '-DPTHREAD_ENABLED', '-DVITA_ENABLED', '-DPOSH_COMPILER_GCC', '-DPOSH_OS_VITA', '-DPOSH_OS_STRING=\\"vita\\"', '-D__psp2__'])
 
     if (env["target"] == "release"):
         # -O3 -ffast-math is identical to -Ofast. We need to split it out so we can selectively disable
@@ -121,7 +120,7 @@ def configure(env):
     #    env.ParseConfig('aarch64-none-elf-pkg-config zlib --cflags --libs')
 
     env.Append(CPPPATH=['#platform/vita'])
-    env.Append(CPPFLAGS=['-DLIBC_FILEIO_ENABLED', '-DGLES_ENABLED'])
+    env.Append(CPPFLAGS=['-DLIBC_FILEIO_ENABLED', '-DGLES_ENABLED', '-DGL_GLEXT_PROTOTYPES'])
     env.Append(CPPFLAGS=['-DPTHREAD_NO_RENAME'])
     env.Append(CCFLAGS=['-mtune=cortex-a9', '-mfpu=neon', '-fpermissive', '-ftree-vectorize'])
     env.Append(LIBS=[
@@ -145,6 +144,8 @@ def configure(env):
         "vorbis",
         "ogg",
         "z",
+        "zstd",
+        "pcre2-32",
         "theora",
         "-llibgpu_es4_ext_stub.a",
         "-llibIMGEGL_stub.a",

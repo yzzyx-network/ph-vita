@@ -98,7 +98,9 @@ Error OS_Vita::initialize(const VideoMode &p_desired, int p_video_driver, int p_
 		OS::get_singleton()->alert("OpenGL ES 3 is not supported on this device.\n\n"
 								   "Please enable the option \"Fallback to OpenGL ES 2.0\" in the options menu.\n",
 				"OpenGL ES 3 Not Supported");
-		gl_initialization_error = true;
+		//gl_initialization_error = true;
+		p_video_driver = VIDEO_DRIVER_GLES2;
+		gles2 = true;
 	}
 
 	if (!gl_initialization_error) {
@@ -290,8 +292,8 @@ void OS_Vita::process_motion() {
 	sceMotionGetState(&motion_state);
 	process_accelerometer(Vector3(motion_state.acceleration.x, motion_state.acceleration.y, motion_state.acceleration.z));
 	process_gravity(Vector3(motion_state.basicOrientation.x, motion_state.basicOrientation.y, motion_state.basicOrientation.z));
-	process_gyroscope(Vector3(motion_state.angularVelocity.x, motion_state.angularVelocity.y, motion_state.angularVelocity.z));	
-	process_magnetometer(Vector3(0,0,0)); // No idea how to calculate this. I'm not a linear maths guy.
+	process_gyroscope(Vector3(motion_state.angularVelocity.x, motion_state.angularVelocity.y, motion_state.angularVelocity.z));
+	process_magnetometer(Vector3(0, 0, 0)); // No idea how to calculate this. I'm not a linear maths guy.
 }
 
 void OS_Vita::process_accelerometer(const Vector3 &m_accelerometer) {
