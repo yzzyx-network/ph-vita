@@ -241,4 +241,4 @@ public:
 	~Spatial();
 };
 
-#endif
+#endif // SPATIAL_H
