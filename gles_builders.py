@@ -490,7 +490,7 @@ def build_legacygl_header(filename, include, class_suffix, output_attribs, gles2
         if header_data.shadow_texunits:
             fd.write("\t\tstatic int _shadow_texunits[]={")
             for x in header_data.shadow_texunits:
-                fd.write(str(x) + ',')
+                fd.write(str(x) + ",")
             fd.write("};\n\n")
         else:
             fd.write("\t\tstatic int *_shadow_texunits=NULL;\n")

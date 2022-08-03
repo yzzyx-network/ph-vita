@@ -26,7 +26,7 @@ jobs:
           sudo rm -f /etc/apt/sources.list.d/*
           sudo cp -f misc/ci/sources.list /etc/apt/sources.list
           sudo apt-get update
-          
+
       - name: Setup Godot build cache
         uses: ./.github/actions/godot-cache
         continue-on-error: true
@@ -37,7 +37,7 @@ jobs:
       - name: Setup VitaSDK
         run: |
           sudo apt-get install cmake libarchive-tools fakeroot zip -y
-          git clone https://github.com/vitasdk/vdpm 
+          git clone https://github.com/vitasdk/vdpm
           git clone https://github.com/isage/vita-packages-extra
           cd vdpm
           ./bootstrap-vitasdk.sh
