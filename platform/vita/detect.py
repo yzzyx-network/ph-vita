@@ -11,8 +11,9 @@ def get_name():
 
 def can_build():
     # Check the minimal dependencies
-    if "VITASDK" not in os.environ:
-        print("VITASDK not defined in environment.. vita diabled.")
+    vitasdk = os.environ.get("VITASDK", "/usr/local/vitasdk")
+    if not os.path.exists(vitasdk):
+        print("VITASDK not defined in environment.. vita disabled.")
         return False
     return True
 
@@ -62,7 +63,7 @@ def configure(env):
     env["RANLIB"] = "arm-vita-eabi-ranlib"
     ## Build type
 
-    vita_sdk_path = os.environ.get("VITASDK")
+    vita_sdk_path = os.environ.get("VITASDK", "/usr/local/vitasdk")
 
     pkg_config_path = "{}/arm-vita-eabi/lib/pkgconfig/pkgconfig"
 
