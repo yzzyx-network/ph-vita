@@ -45,6 +45,9 @@
 #include <psp2/kernel/clib.h>
 #include <psp2/kernel/processmgr.h>
 #include <psp2/kernel/threadmgr.h>
+#include <psp2/kernel/modulemgr.h>
+#include <psp2/sysmodule.h>
+#include <psp2/libime.h>
 #include <psp2/power.h>
 #include <psp2/rtc.h>
 
@@ -115,6 +118,7 @@ public:
 
 	virtual bool can_draw() const;
 
+	void key(uint32_t p_key, bool p_pressed);
 	virtual bool has_virtual_keyboard() const;
 	virtual void show_virtual_keyboard(const String &p_existing_text, const Rect2 &p_screen_rect = Rect2(), bool p_multiline = false, int p_max_input_length = -1, int p_cursor_start = -1, int p_cursor_end = -1);
 	virtual void hide_virtual_keyboard();
@@ -132,6 +136,8 @@ public:
 	void run();
 
 	virtual bool _check_internal_feature_support(const String &p_feature);
+
+	static OS_Vita *get_singleton();
 
 	OS_Vita();
 	~OS_Vita();

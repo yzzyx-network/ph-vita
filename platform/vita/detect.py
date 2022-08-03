@@ -83,7 +83,7 @@ def configure(env):
         # -O3 -ffast-math is identical to -Ofast. We need to split it out so we can selectively disable
         # -ffast-math in code for which it generates wrong results.
         if (env["optimize"] == "speed"): #optimize for speed (default)
-            env.Prepend(CCFLAGS=['-O3', '-ffast-math'])
+            env.Prepend(CCFLAGS=['-O2', '-ffast-math'])
         else: #optimize for size
             env.Prepend(CCFLAGS=['-Os'])
 
@@ -135,6 +135,7 @@ def configure(env):
         "SceCtrl_stub",
         "SceMotion_stub",
         "SceTouch_stub",
+        "SceIme_stub",
         "SceAudio_stub",
         "ScePower_stub",
         "jpeg",
