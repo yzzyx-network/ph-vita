@@ -85,6 +85,9 @@ platform/android/java/*/libs/
 *.bc
 platform/javascript/node_modules/
 
+# Vita
+temp-build/
+
 # Misc
 *.debug
 

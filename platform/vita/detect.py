@@ -55,26 +55,28 @@ def get_flags():
 
 
 def configure(env):
-    env["CC"] = "arm-vita-eabi-gcc"
-    env["CXX"] = "arm-vita-eabi-g++"
-    env["LD"] = "arm-vita-eabi-ld"
-    env["AR"] = "arm-vita-eabi-ar"
-    env["STRIP"] = "arm-vita-eabi-strip"
-    env["RANLIB"] = "arm-vita-eabi-ranlib"
-    ## Build type
-
     vita_sdk_path = os.environ.get("VITASDK", "/usr/local/vitasdk")
+
+    env["CC"] = vita_sdk_path + "/bin/arm-vita-eabi-gcc"
+    env["CXX"] = vita_sdk_path + "/bin/arm-vita-eabi-g++"
+    env["LD"] = vita_sdk_path + "/bin/arm-vita-eabi-ld"
+    env["AR"] = vita_sdk_path + "/bin/arm-vita-eabi-ar"
+    env["STRIP"] = vita_sdk_path + "/bin/arm-vita-eabi-strip"
+    env["RANLIB"] = vita_sdk_path + "/bin/arm-vita-eabi-ranlib"
+    ## Build type
 
     pkg_config_path = "{}/arm-vita-eabi/lib/pkgconfig/pkgconfig"
 
     os.environ["PKG_CONFIG_PATH"] = pkg_config_path
     env['ENV']['PKG_CONFIG_PATH'] = pkg_config_path
 
+    env["VITASDK_BIN"] = '{}/bin/'.format(vita_sdk_path)
 
-    env.Prepend(CPPPATH=['{}/arm-vita-eabi/include'.format(os.environ.get("VITASDK"))])
-    env.Prepend(CPPPATH=['{}/arm-vita-eabi/include/freetype2'.format(os.environ.get("VITASDK"))])
-    env.Prepend(CPPPATH=['{}/share/gcc-arm-vita-eabi/samples/common'.format(os.environ.get("VITASDK"))])
-    env.Append(LIBPATH=['{}/arm-vita-eabi/lib'.format(os.environ.get("VITASDK"))])
+
+    env.Prepend(CPPPATH=['{}/arm-vita-eabi/include'.format(vita_sdk_path)])
+    env.Prepend(CPPPATH=['{}/arm-vita-eabi/include/freetype2'.format(vita_sdk_path)])
+    env.Prepend(CPPPATH=['{}/share/gcc-arm-vita-eabi/samples/common'.format(vita_sdk_path)])
+    env.Append(LIBPATH=['{}/arm-vita-eabi/lib'.format(vita_sdk_path)])
     env.Append(LINKFLAGS=["-Wl,-q,-whole-archive", "-lpthread", "-Wl,-q,-no-whole-archive"])
     print(env.get("CCFLAGS"))
 
