@@ -354,37 +354,37 @@ String OS_Vita::get_model_name() const {
 }
 
 void utf16_to_utf8(const uint16_t *src, uint8_t *dst) {
-  int i;
-  for (i = 0; src[i]; i++) {
-    if ((src[i] & 0xFF80) == 0) {
-      *(dst++) = src[i] & 0xFF;
-    } else if((src[i] & 0xF800) == 0) {
-      *(dst++) = ((src[i] >> 6) & 0xFF) | 0xC0;
-      *(dst++) = (src[i] & 0x3F) | 0x80;
-    } else if((src[i] & 0xFC00) == 0xD800 && (src[i + 1] & 0xFC00) == 0xDC00) {
-      *(dst++) = (((src[i] + 64) >> 8) & 0x3) | 0xF0;
-      *(dst++) = (((src[i] >> 2) + 16) & 0x3F) | 0x80;
-      *(dst++) = ((src[i] >> 4) & 0x30) | 0x80 | ((src[i + 1] << 2) & 0xF);
-      *(dst++) = (src[i + 1] & 0x3F) | 0x80;
-      i += 1;
-    } else {
-      *(dst++) = ((src[i] >> 12) & 0xF) | 0xE0;
-      *(dst++) = ((src[i] >> 6) & 0x3F) | 0x80;
-      *(dst++) = (src[i] & 0x3F) | 0x80;
-    }
-  }
+	int i;
+	for (i = 0; src[i]; i++) {
+		if ((src[i] & 0xFF80) == 0) {
+			*(dst++) = src[i] & 0xFF;
+		} else if ((src[i] & 0xF800) == 0) {
+			*(dst++) = ((src[i] >> 6) & 0xFF) | 0xC0;
+			*(dst++) = (src[i] & 0x3F) | 0x80;
+		} else if ((src[i] & 0xFC00) == 0xD800 && (src[i + 1] & 0xFC00) == 0xDC00) {
+			*(dst++) = (((src[i] + 64) >> 8) & 0x3) | 0xF0;
+			*(dst++) = (((src[i] >> 2) + 16) & 0x3F) | 0x80;
+			*(dst++) = ((src[i] >> 4) & 0x30) | 0x80 | ((src[i + 1] << 2) & 0xF);
+			*(dst++) = (src[i + 1] & 0x3F) | 0x80;
+			i += 1;
+		} else {
+			*(dst++) = ((src[i] >> 12) & 0xF) | 0xE0;
+			*(dst++) = ((src[i] >> 6) & 0x3F) | 0x80;
+			*(dst++) = (src[i] & 0x3F) | 0x80;
+		}
+	}
 
-  *dst = '\0';
+	*dst = '\0';
 }
 
-static char libime_initval[8] = {1};
+static char libime_initval[8] = { 1 };
 static unsigned int libime_height = 0;
 static char libime_out[SCE_IME_MAX_PREEDIT_LENGTH * 2 + 8];
 static unsigned int libime_work[SCE_IME_WORK_BUFFER_SIZE / sizeof(unsigned int)];
 static SceImeCaret caret_rev;
 
 void vita_ime_event_handler(void *arg, const SceImeEventData *e) {
-	uint8_t utf8_buffer[SCE_IME_MAX_TEXT_LENGTH] = {'\0'};
+	uint8_t utf8_buffer[SCE_IME_MAX_TEXT_LENGTH] = { '\0' };
 	switch (e->id) {
 		case SCE_IME_EVENT_OPEN:
 			libime_height = e->param.rect.height;
@@ -394,8 +394,7 @@ void vita_ime_event_handler(void *arg, const SceImeEventData *e) {
 				OS_Vita::get_singleton()->key(KEY_BACKSPACE, true);
 				OS_Vita::get_singleton()->key(KEY_BACKSPACE, false);
 				sceImeSetText((SceWChar16 *)libime_initval, 4);
-			}
-			else {
+			} else {
 				String character;
 				utf16_to_utf8((uint16_t *)&libime_out[2], utf8_buffer);
 				character.parse_utf8(utf8_buffer);
@@ -441,21 +440,21 @@ void OS_Vita::show_virtual_keyboard(const String &p_existing_text, const Rect2 &
 		SceImeParam param;
 		sceImeParamInit(&param);
 
-    	sceClibMemset(libime_out, 0, (SCE_IME_MAX_PREEDIT_LENGTH * 2 + 6));
+		sceClibMemset(libime_out, 0, (SCE_IME_MAX_PREEDIT_LENGTH * 2 + 6));
 
-    	param.supportedLanguages = SCE_IME_LANGUAGE_ENGLISH;
-    	param.languagesForced = false;
-    	param.type = SCE_IME_TYPE_DEFAULT;
-    	param.option = SCE_IME_OPTION_NO_ASSISTANCE;
-    	param.inputTextBuffer = (SceWChar16 *)libime_out;
-    	param.maxTextLength = 4;
-    	param.handler = vita_ime_event_handler;
-    	param.filter = NULL;
-    	param.initialText = (SceWChar16 *)libime_initval;
-    	param.arg = NULL;
-    	param.work = libime_work;
+		param.supportedLanguages = SCE_IME_LANGUAGE_ENGLISH;
+		param.languagesForced = false;
+		param.type = SCE_IME_TYPE_DEFAULT;
+		param.option = SCE_IME_OPTION_NO_ASSISTANCE;
+		param.inputTextBuffer = (SceWChar16 *)libime_out;
+		param.maxTextLength = 4;
+		param.handler = vita_ime_event_handler;
+		param.filter = NULL;
+		param.initialText = (SceWChar16 *)libime_initval;
+		param.arg = NULL;
+		param.work = libime_work;
 
-    	sceImeOpen(&param);
+		sceImeOpen(&param);
 		libime_active = true;
 	}
 }

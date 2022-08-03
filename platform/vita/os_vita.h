@@ -43,13 +43,13 @@
 
 #include <psp2/appmgr.h>
 #include <psp2/kernel/clib.h>
+#include <psp2/kernel/modulemgr.h>
 #include <psp2/kernel/processmgr.h>
 #include <psp2/kernel/threadmgr.h>
-#include <psp2/kernel/modulemgr.h>
-#include <psp2/sysmodule.h>
 #include <psp2/libime.h>
 #include <psp2/power.h>
 #include <psp2/rtc.h>
+#include <psp2/sysmodule.h>
 
 class OS_Vita : public OS {
 	bool secondary_gl_available = false;
