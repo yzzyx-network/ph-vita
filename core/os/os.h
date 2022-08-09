@@ -191,7 +191,8 @@ public:
 		MOUSE_MODE_VISIBLE,
 		MOUSE_MODE_HIDDEN,
 		MOUSE_MODE_CAPTURED,
-		MOUSE_MODE_CONFINED
+		MOUSE_MODE_CONFINED,
+		MOUSE_MODE_CONFINED_HIDDEN,
 	};
 
 	virtual void set_mouse_mode(MouseMode p_mode);
@@ -442,6 +443,7 @@ public:
 	virtual uint64_t get_unix_time() const;
 	virtual uint64_t get_system_time_secs() const;
 	virtual uint64_t get_system_time_msecs() const;
+	virtual double get_subsecond_unix_time() const; // For use in Time::get_unix_time().
 
 	virtual void delay_usec(uint32_t p_usec) const = 0;
 	virtual void add_frame_delay(bool p_can_draw);
