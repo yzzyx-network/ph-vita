@@ -503,6 +503,7 @@ public:
 	inline T operator[](int p_index) const;
 
 	Error resize(int p_size);
+	Error clear() { return resize(0); }
 
 	void invert();
 	void sort();
