@@ -196,6 +196,9 @@ int mksfoex(ParamSFOStruct *sfo, String outDir) {
 	char head[8192];
 	char keys[8192];
 	char data[8192];
+	char title_id[256];
+	char version[256];
+	char title[256];
 	struct SfoHeader *h;
 	struct SfoEntry *e;
 	char *k;
@@ -208,6 +211,9 @@ int mksfoex(ParamSFOStruct *sfo, String outDir) {
 
 	g_empty = 0;
 	memset(g_vals, 0, sizeof(EntryContainer) * MAX_OPTIONS);
+	memset(title_id, 0, sizeof(title_id));
+	memset(version, 0, sizeof(version));
+	memset(title, 0, sizeof(title));
 	for (i = 0; i < (sizeof(g_defaults) / sizeof(struct EntryContainer)); i++) {
 		entry = find_free();
 		if (entry == NULL) {
@@ -222,14 +228,16 @@ int mksfoex(ParamSFOStruct *sfo, String outDir) {
 			fprintf(stderr, "TITLE_ID must be 9 characters long\n");
 			return 1;
 		}
-		entry->data = sfo->title_id.to_upper().utf8().get_data();
+		strcpy(title_id, sfo->title_id.to_upper().utf8().get_data());
+		entry->data = title_id;
 	}
 
 	if ((entry = find_name("VERSION"))) {
 		if (sfo->version.length() != 5 || sfo->version.find_char('.') != 2) {
 			entry->data = "01.00"; // Default to 01.00 if invalid version
 		} else {
-			entry->data = sfo->version.utf8().get_data();
+			strcpy(version, sfo->version.utf8().get_data());
+			entry->data = version;
 		}
 	}
 
@@ -242,7 +250,8 @@ int mksfoex(ParamSFOStruct *sfo, String outDir) {
 	}
 
 	if (sfo->title.length() > 0) {
-		g_title = sfo->title.utf8().get_data();
+		strcpy(title, sfo->title.utf8().get_data());
+		g_title = title;
 	}
 
 	if (g_title) {
