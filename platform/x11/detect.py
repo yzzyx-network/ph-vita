@@ -66,8 +66,6 @@ def get_opts():
     return [
         EnumVariable("linker", "Linker program", "default", ("default", "bfd", "gold", "lld", "mold")),
         BoolVariable("use_llvm", "Use the LLVM compiler", False),
-        BoolVariable("use_lld", "Use the LLD linker (deprecated, use `linker=lld` instead).", False),
-        BoolVariable("use_thinlto", "Use ThinLTO (LLVM only, requires linker=lld, implies use_lto=yes)", False),
         BoolVariable("use_static_cpp", "Link libgcc and libstdc++ statically for better portability", True),
         BoolVariable("use_ubsan", "Use LLVM/GCC compiler undefined behavior sanitizer (UBSAN)", False),
         BoolVariable("use_asan", "Use LLVM/GCC compiler address sanitizer (ASAN))", False),
@@ -147,12 +145,7 @@ def configure(env):
             env["CXX"] = "clang++"
         env.extra_suffix = ".llvm" + env.extra_suffix
 
-    if env["use_lld"]:
-        if env["linker"] != "default":
-            print("Can't specify both `use_lld=yes` and a non-default `linker`. Remove `use_lld=yes`.")
-            sys.exit(255)
-        print("The `use_lld=yes` option is deprecated, use `linker=lld` instead.")
-        env["linker"] = "lld"
+    # Linker
 
     if env["linker"] != "default":
         print("Using linker program: " + env["linker"])
@@ -173,13 +166,7 @@ def configure(env):
         else:
             env.Append(LINKFLAGS=["-fuse-ld=%s" % env["linker"]])
 
-    if env["use_thinlto"]:
-        if not env["use_llvm"] or env["linker"] != "lld":
-            print("ThinLTO is only compatible with LLVM and the LLD linker, use `use_llvm=yes linker=lld`.")
-            sys.exit(255)
-        else:
-            env["use_lto"] = True  # ThinLTO implies LTO
-
+    # Sanitizers
     if env["use_ubsan"] or env["use_asan"] or env["use_lsan"] or env["use_tsan"] or env["use_msan"]:
         env.extra_suffix += "s"
 
@@ -216,8 +203,16 @@ def configure(env):
             env.Append(CCFLAGS=["-fsanitize=memory"])
             env.Append(LINKFLAGS=["-fsanitize=memory"])
 
-    if env["use_lto"]:
-        if env["use_thinlto"]:
+    # LTO
+
+    if env["lto"] == "auto":  # Full LTO for production.
+        env["lto"] = "full"
+
+    if env["lto"] != "none":
+        if env["lto"] == "thin":
+            if not env["use_llvm"]:
+                print("ThinLTO is only compatible with LLVM, use `use_llvm=yes` or `lto=full`.")
+                sys.exit(255)
             env.Append(CCFLAGS=["-flto=thin"])
             env.Append(LINKFLAGS=["-flto=thin"])
         elif not env["use_llvm"] and env.GetOption("num_jobs") > 1:
@@ -232,7 +227,6 @@ def configure(env):
             env["AR"] = "gcc-ar"
 
     env.Append(CCFLAGS=["-pipe"])
-    env.Append(LINKFLAGS=["-pipe"])
 
     # Check for gcc version >= 6 before adding -no-pie
     version = get_compiler_version(env) or [-1, -1]
@@ -406,7 +400,10 @@ def configure(env):
     if platform.system() == "Linux":
         env.Append(LIBS=["dl"])
 
-    if platform.system().find("BSD") >= 0:
+    if not env["execinfo"] and platform.libc_ver()[0] != "glibc":
+        # The default crash handler depends on glibc, so if the host uses
+        # a different libc (BSD libc, musl), fall back to libexecinfo.
+        print("Note: Using `execinfo=yes` for the crash handler as required on platforms where glibc is missing.")
         env["execinfo"] = True
 
     if env["execinfo"]:

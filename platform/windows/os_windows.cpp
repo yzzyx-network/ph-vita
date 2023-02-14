@@ -1,32 +1,32 @@
-/*************************************************************************/
-/*  os_windows.cpp                                                       */
-/*************************************************************************/
-/*                       This file is part of:                           */
-/*                           GODOT ENGINE                                */
-/*                      https://godotengine.org                          */
-/*************************************************************************/
-/* Copyright (c) 2007-2022 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2022 Godot Engine contributors (cf. AUTHORS.md).   */
-/*                                                                       */
-/* Permission is hereby granted, free of charge, to any person obtaining */
-/* a copy of this software and associated documentation files (the       */
-/* "Software"), to deal in the Software without restriction, including   */
-/* without limitation the rights to use, copy, modify, merge, publish,   */
-/* distribute, sublicense, and/or sell copies of the Software, and to    */
-/* permit persons to whom the Software is furnished to do so, subject to */
-/* the following conditions:                                             */
-/*                                                                       */
-/* The above copyright notice and this permission notice shall be        */
-/* included in all copies or substantial portions of the Software.       */
-/*                                                                       */
-/* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,       */
-/* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF    */
-/* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.*/
-/* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY  */
-/* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,  */
-/* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
-/* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
-/*************************************************************************/
+/**************************************************************************/
+/*  os_windows.cpp                                                        */
+/**************************************************************************/
+/*                         This file is part of:                          */
+/*                             GODOT ENGINE                               */
+/*                        https://godotengine.org                         */
+/**************************************************************************/
+/* Copyright (c) 2014-present Godot Engine contributors (see AUTHORS.md). */
+/* Copyright (c) 2007-2014 Juan Linietsky, Ariel Manzur.                  */
+/*                                                                        */
+/* Permission is hereby granted, free of charge, to any person obtaining  */
+/* a copy of this software and associated documentation files (the        */
+/* "Software"), to deal in the Software without restriction, including    */
+/* without limitation the rights to use, copy, modify, merge, publish,    */
+/* distribute, sublicense, and/or sell copies of the Software, and to     */
+/* permit persons to whom the Software is furnished to do so, subject to  */
+/* the following conditions:                                              */
+/*                                                                        */
+/* The above copyright notice and this permission notice shall be         */
+/* included in all copies or substantial portions of the Software.        */
+/*                                                                        */
+/* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,        */
+/* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF     */
+/* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. */
+/* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY   */
+/* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,   */
+/* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE      */
+/* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
+/**************************************************************************/
 
 #include "os_windows.h"
 
@@ -1221,7 +1221,7 @@ void OS_Windows::process_key_events() {
 					k->set_control(ke.control);
 					k->set_metakey(ke.meta);
 					k->set_pressed(true);
-					k->set_scancode(KeyMappingWindows::get_keysym(ke.wParam));
+					k->set_scancode(KeyMappingWindows::get_keysym(MapVirtualKey((ke.lParam >> 16) & 0xFF, MAPVK_VSC_TO_VK)));
 					k->set_physical_scancode(KeyMappingWindows::get_scansym((ke.lParam >> 16) & 0xFF, ke.lParam & (1 << 24)));
 					k->set_unicode(ke.wParam);
 					if (k->get_unicode() && gr_mem) {
@@ -3105,7 +3105,7 @@ void OS_Windows::set_native_icon(const String &p_filename) {
 	pos += sizeof(WORD);
 	f->seek(pos);
 
-	icon_dir = (ICONDIR *)memrealloc(icon_dir, 3 * sizeof(WORD) + icon_dir->idCount * sizeof(ICONDIRENTRY));
+	icon_dir = (ICONDIR *)memrealloc(icon_dir, sizeof(ICONDIR) + (icon_dir->idCount * sizeof(ICONDIRENTRY)));
 	f->get_buffer((uint8_t *)&icon_dir->idEntries[0], icon_dir->idCount * sizeof(ICONDIRENTRY));
 
 	int small_icon_index = -1; // Select 16x16 with largest color count
@@ -3254,13 +3254,9 @@ bool OS_Windows::set_environment(const String &p_var, const String &p_value) con
 	return (bool)SetEnvironmentVariableW(p_var.c_str(), p_value.c_str());
 }
 
-String OS_Windows::get_stdin_string(bool p_block) {
-	if (p_block) {
-		char buff[1024];
-		return fgets(buff, 1024, stdin);
-	};
-
-	return String();
+String OS_Windows::get_stdin_string() {
+	char buff[1024];
+	return fgets(buff, 1024, stdin);
 }
 
 void OS_Windows::enable_for_stealing_focus(ProcessID pid) {
@@ -3337,16 +3333,6 @@ BOOL is_wow64() {
 	}
 
 	return wow64;
-}
-
-int OS_Windows::get_processor_count() const {
-	SYSTEM_INFO sysinfo;
-	if (is_wow64())
-		GetNativeSystemInfo(&sysinfo);
-	else
-		GetSystemInfo(&sysinfo);
-
-	return sysinfo.dwNumberOfProcessors;
 }
 
 String OS_Windows::get_processor_name() const {
@@ -3652,14 +3638,6 @@ uint64_t OS_Windows::get_embedded_pck_offset() const {
 }
 
 String OS_Windows::get_config_path() const {
-	// The XDG Base Directory specification technically only applies on Linux/*BSD, but it doesn't hurt to support it on Windows as well.
-	if (has_environment("XDG_CONFIG_HOME")) {
-		if (get_environment("XDG_CONFIG_HOME").is_abs_path()) {
-			return get_environment("XDG_CONFIG_HOME").replace("\\", "/");
-		} else {
-			WARN_PRINT_ONCE("`XDG_CONFIG_HOME` is a relative path. Ignoring its value and falling back to `%APPDATA%` or `.` per the XDG Base Directory specification.");
-		}
-	}
 	if (has_environment("APPDATA")) {
 		return get_environment("APPDATA").replace("\\", "/");
 	}
@@ -3667,29 +3645,13 @@ String OS_Windows::get_config_path() const {
 }
 
 String OS_Windows::get_data_path() const {
-	// The XDG Base Directory specification technically only applies on Linux/*BSD, but it doesn't hurt to support it on Windows as well.
-	if (has_environment("XDG_DATA_HOME")) {
-		if (get_environment("XDG_DATA_HOME").is_abs_path()) {
-			return get_environment("XDG_DATA_HOME").replace("\\", "/");
-		} else {
-			WARN_PRINT_ONCE("`XDG_DATA_HOME` is a relative path. Ignoring its value and falling back to `get_config_path()` per the XDG Base Directory specification.");
-		}
-	}
 	return get_config_path();
 }
 
 String OS_Windows::get_cache_path() const {
 	static String cache_path_cache;
 	if (cache_path_cache == String()) {
-		// The XDG Base Directory specification technically only applies on Linux/*BSD, but it doesn't hurt to support it on Windows as well.
-		if (has_environment("XDG_CACHE_HOME")) {
-			if (get_environment("XDG_CACHE_HOME").is_abs_path()) {
-				cache_path_cache = get_environment("XDG_CACHE_HOME").replace("\\", "/");
-			} else {
-				WARN_PRINT_ONCE("`XDG_CACHE_HOME` is a relative path. Ignoring its value and falling back to `%LOCALAPPDATA%\\cache`, `%TEMP%` or `get_config_path()` per the XDG Base Directory specification.");
-			}
-		}
-		if (cache_path_cache == String() && has_environment("LOCALAPPDATA")) {
+		if (has_environment("LOCALAPPDATA")) {
 			cache_path_cache = get_environment("LOCALAPPDATA").replace("\\", "/");
 		}
 		if (cache_path_cache == String() && has_environment("TEMP")) {
@@ -3997,6 +3959,18 @@ OS_Windows::OS_Windows(HINSTANCE _hInstance) {
 #ifdef XAUDIO2_ENABLED
 	AudioDriverManager::add_driver(&driver_xaudio2);
 #endif
+
+	// Enable ANSI escape code support on Windows 10 v1607 (Anniversary Update) and later.
+	// This lets the engine and projects use ANSI escape codes to color text just like on macOS and Linux.
+	//
+	// NOTE: The engine does not use ANSI escape codes to color error/warning messages; it uses Windows API calls instead.
+	// Therefore, error/warning messages are still colored on Windows versions older than 10.
+	HANDLE stdoutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+	DWORD outMode = ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+	if (!SetConsoleMode(stdoutHandle, outMode)) {
+		// Windows 8.1 or below, or Windows 10 prior to Anniversary Update.
+		print_verbose("Can't set the ENABLE_VIRTUAL_TERMINAL_PROCESSING Windows console mode.");
+	}
 
 	Vector<Logger *> loggers;
 	loggers.push_back(memnew(WindowsTerminalLogger));

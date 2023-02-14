@@ -1,32 +1,32 @@
-/*************************************************************************/
-/*  core_bind.cpp                                                        */
-/*************************************************************************/
-/*                       This file is part of:                           */
-/*                           GODOT ENGINE                                */
-/*                      https://godotengine.org                          */
-/*************************************************************************/
-/* Copyright (c) 2007-2022 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2022 Godot Engine contributors (cf. AUTHORS.md).   */
-/*                                                                       */
-/* Permission is hereby granted, free of charge, to any person obtaining */
-/* a copy of this software and associated documentation files (the       */
-/* "Software"), to deal in the Software without restriction, including   */
-/* without limitation the rights to use, copy, modify, merge, publish,   */
-/* distribute, sublicense, and/or sell copies of the Software, and to    */
-/* permit persons to whom the Software is furnished to do so, subject to */
-/* the following conditions:                                             */
-/*                                                                       */
-/* The above copyright notice and this permission notice shall be        */
-/* included in all copies or substantial portions of the Software.       */
-/*                                                                       */
-/* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,       */
-/* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF    */
-/* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.*/
-/* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY  */
-/* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,  */
-/* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
-/* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
-/*************************************************************************/
+/**************************************************************************/
+/*  core_bind.cpp                                                         */
+/**************************************************************************/
+/*                         This file is part of:                          */
+/*                             GODOT ENGINE                               */
+/*                        https://godotengine.org                         */
+/**************************************************************************/
+/* Copyright (c) 2014-present Godot Engine contributors (see AUTHORS.md). */
+/* Copyright (c) 2007-2014 Juan Linietsky, Ariel Manzur.                  */
+/*                                                                        */
+/* Permission is hereby granted, free of charge, to any person obtaining  */
+/* a copy of this software and associated documentation files (the        */
+/* "Software"), to deal in the Software without restriction, including    */
+/* without limitation the rights to use, copy, modify, merge, publish,    */
+/* distribute, sublicense, and/or sell copies of the Software, and to     */
+/* permit persons to whom the Software is furnished to do so, subject to  */
+/* the following conditions:                                              */
+/*                                                                        */
+/* The above copyright notice and this permission notice shall be         */
+/* included in all copies or substantial portions of the Software.        */
+/*                                                                        */
+/* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,        */
+/* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF     */
+/* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. */
+/* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY   */
+/* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,   */
+/* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE      */
+/* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
+/**************************************************************************/
 
 #include "core_bind.h"
 
@@ -520,6 +520,10 @@ Error _OS::shell_open(String p_uri) {
 	return OS::get_singleton()->shell_open(p_uri);
 };
 
+String _OS::read_string_from_stdin() {
+	return OS::get_singleton()->get_stdin_string();
+}
+
 int _OS::execute(const String &p_path, const Vector<String> &p_arguments, bool p_blocking, Array p_output, bool p_read_stderr, bool p_open_console) {
 	OS::ProcessID pid = -2;
 	int exitcode = 0;
@@ -574,6 +578,29 @@ Vector<String> _OS::get_cmdline_args() {
 	}
 
 	return cmdlinev;
+}
+
+void _OS::set_restart_on_exit(bool p_restart, const Vector<String> &p_restart_arguments) {
+	List<String> args_list;
+	for (int i = 0; i < p_restart_arguments.size(); i++) {
+		args_list.push_back(p_restart_arguments[i]);
+	}
+
+	::OS::get_singleton()->set_restart_on_exit(p_restart, args_list);
+}
+
+bool _OS::is_restart_on_exit_set() const {
+	return ::OS::get_singleton()->is_restart_on_exit_set();
+}
+
+Vector<String> _OS::get_restart_on_exit_arguments() const {
+	List<String> args = ::OS::get_singleton()->get_restart_on_exit_arguments();
+	Vector<String> args_vector;
+	for (List<String>::Element *E = args.front(); E; E = E->next()) {
+		args_vector.push_back(E->get());
+	}
+
+	return args_vector;
 }
 
 String _OS::get_locale() const {
@@ -1392,6 +1419,7 @@ void _OS::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_processor_name"), &_OS::get_processor_name);
 
 	ClassDB::bind_method(D_METHOD("get_executable_path"), &_OS::get_executable_path);
+	ClassDB::bind_method(D_METHOD("read_string_from_stdin"), &_OS::read_string_from_stdin);
 	ClassDB::bind_method(D_METHOD("execute", "path", "arguments", "blocking", "output", "read_stderr", "open_console"), &_OS::execute, DEFVAL(true), DEFVAL(Array()), DEFVAL(false), DEFVAL(false));
 	ClassDB::bind_method(D_METHOD("kill", "pid"), &_OS::kill);
 	ClassDB::bind_method(D_METHOD("shell_open", "uri"), &_OS::shell_open);
@@ -1404,6 +1432,10 @@ void _OS::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("get_name"), &_OS::get_name);
 	ClassDB::bind_method(D_METHOD("get_cmdline_args"), &_OS::get_cmdline_args);
+
+	ClassDB::bind_method(D_METHOD("set_restart_on_exit", "restart", "arguments"), &_OS::set_restart_on_exit, DEFVAL(Vector<String>()));
+	ClassDB::bind_method(D_METHOD("is_restart_on_exit_set"), &_OS::is_restart_on_exit_set);
+	ClassDB::bind_method(D_METHOD("get_restart_on_exit_arguments"), &_OS::get_restart_on_exit_arguments);
 
 	ClassDB::bind_method(D_METHOD("get_datetime", "utc"), &_OS::get_datetime, DEFVAL(false));
 	ClassDB::bind_method(D_METHOD("get_date", "utc"), &_OS::get_date, DEFVAL(false));

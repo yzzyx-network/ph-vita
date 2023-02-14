@@ -1,32 +1,32 @@
-/*************************************************************************/
-/*  editor_help.cpp                                                      */
-/*************************************************************************/
-/*                       This file is part of:                           */
-/*                           GODOT ENGINE                                */
-/*                      https://godotengine.org                          */
-/*************************************************************************/
-/* Copyright (c) 2007-2022 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2022 Godot Engine contributors (cf. AUTHORS.md).   */
-/*                                                                       */
-/* Permission is hereby granted, free of charge, to any person obtaining */
-/* a copy of this software and associated documentation files (the       */
-/* "Software"), to deal in the Software without restriction, including   */
-/* without limitation the rights to use, copy, modify, merge, publish,   */
-/* distribute, sublicense, and/or sell copies of the Software, and to    */
-/* permit persons to whom the Software is furnished to do so, subject to */
-/* the following conditions:                                             */
-/*                                                                       */
-/* The above copyright notice and this permission notice shall be        */
-/* included in all copies or substantial portions of the Software.       */
-/*                                                                       */
-/* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,       */
-/* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF    */
-/* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.*/
-/* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY  */
-/* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,  */
-/* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
-/* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
-/*************************************************************************/
+/**************************************************************************/
+/*  editor_help.cpp                                                       */
+/**************************************************************************/
+/*                         This file is part of:                          */
+/*                             GODOT ENGINE                               */
+/*                        https://godotengine.org                         */
+/**************************************************************************/
+/* Copyright (c) 2014-present Godot Engine contributors (see AUTHORS.md). */
+/* Copyright (c) 2007-2014 Juan Linietsky, Ariel Manzur.                  */
+/*                                                                        */
+/* Permission is hereby granted, free of charge, to any person obtaining  */
+/* a copy of this software and associated documentation files (the        */
+/* "Software"), to deal in the Software without restriction, including    */
+/* without limitation the rights to use, copy, modify, merge, publish,    */
+/* distribute, sublicense, and/or sell copies of the Software, and to     */
+/* permit persons to whom the Software is furnished to do so, subject to  */
+/* the following conditions:                                              */
+/*                                                                        */
+/* The above copyright notice and this permission notice shall be         */
+/* included in all copies or substantial portions of the Software.        */
+/*                                                                        */
+/* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,        */
+/* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF     */
+/* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. */
+/* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY   */
+/* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,   */
+/* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE      */
+/* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
+/**************************************************************************/
 
 #include "editor_help.h"
 
@@ -212,6 +212,27 @@ void EditorHelp::_add_type(const String &p_type, const String &p_enum) {
 	class_desc->pop();
 }
 
+void EditorHelp::_add_type_icon(const String &p_type, int p_size) {
+	Ref<Texture> icon;
+	if (has_icon(p_type, "EditorIcons")) {
+		icon = get_icon(p_type, "EditorIcons");
+	} else if (ClassDB::class_exists(p_type) && ClassDB::is_parent_class(p_type, "Object")) {
+		icon = get_icon("Object", "EditorIcons");
+	} else {
+		icon = get_icon("ArrowRight", "EditorIcons");
+	}
+
+	Vector2i size = Vector2i(icon->get_width(), icon->get_height());
+	if (p_size > 0) {
+		// Ensures icon scales proportionally on both axis, based on icon height.
+		float ratio = p_size / float(size.height);
+		size.width *= ratio;
+		size.height *= ratio;
+	}
+
+	class_desc->add_image(icon, size.width, size.height, RichTextLabel::INLINE_ALIGN_CENTER);
+}
+
 String EditorHelp::_fix_constant(const String &p_constant) const {
 	if (p_constant.strip_edges() == "4294967295") {
 		return "0xFFFFFFFF";
@@ -364,12 +385,16 @@ void EditorHelp::_update_doc() {
 	class_desc->push_font(doc_title_font);
 	class_desc->push_color(title_color);
 	class_desc->add_text(TTR("Class:") + " ");
+	_add_type_icon(edited_class, doc_title_font->get_height());
+	class_desc->add_text(" ");
 	class_desc->push_color(headline_color);
 	_add_text(edited_class);
 	class_desc->pop();
 	class_desc->pop();
 	class_desc->pop();
 	class_desc->add_newline();
+
+	const String non_breaking_space = String::chr(160);
 
 	// Inheritance tree
 
@@ -382,6 +407,8 @@ void EditorHelp::_update_doc() {
 		String inherits = cd.inherits;
 
 		while (inherits != "") {
+			_add_type_icon(inherits);
+			class_desc->add_text(non_breaking_space); // Otherwise icon borrows hyperlink from _add_type().
 			_add_type(inherits);
 
 			inherits = doc->class_list[inherits].inherits;
@@ -413,7 +440,8 @@ void EditorHelp::_update_doc() {
 				if (prev) {
 					class_desc->add_text(" , ");
 				}
-
+				_add_type_icon(E->get().name);
+				class_desc->add_text(non_breaking_space); // Otherwise icon borrows hyperlink from _add_type().
 				_add_type(E->get().name);
 				prev = true;
 			}
@@ -1695,6 +1723,8 @@ EditorHelpBit::EditorHelpBit() {
 }
 
 FindBar::FindBar() {
+	results_count = 0;
+
 	search_text = memnew(LineEdit);
 	add_child(search_text);
 	search_text->set_custom_minimum_size(Size2(100 * EDSCALE, 0));
