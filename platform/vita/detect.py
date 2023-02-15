@@ -38,21 +38,21 @@ def get_flags():
     return [
         ("tools", False),
         ("builtin_bullet", True),
-        ("builtin_enet", True),  # Not in portlibs.
+        ("builtin_enet", True),  # Not in VitaSDK.
         ("builtin_libogg", False),
         ("builtin_libvpx", False),
-        ("builtin_libwebsockets", True),  # Not in portlibs.
+        ("builtin_libwebsockets", True),  # Not in VitaSDK.
         ("builtin_mbedtls", False),  # VitaSDK package isn't the correct version btw
         ("builtin_miniupnpc", False),
         ("builtin_opus", False),
         ("builtin_pcre2", False),
         ("builtin_pcre2_with_jit", False),
-        ("builtin_squish", True),  # Not in portlibs.
-        ("builtin_zstd", False),  # Not in portlibs.
+        ("builtin_squish", True),  # Not in VitaSDK.
+        ("builtin_zstd", False),
         ("module_mbedtls_enabled", False),
         ("module_upnp_enabled", False),
         ("module_enet_enabled", False),
-        ("module_gdnative_enabled", False),
+        ("module_gdnative_enabled", True),
         ("module_regex_enabled", True),
         ("module_webm_enabled", False),
         ("module_mobile_vr_enabled", False),
@@ -140,12 +140,14 @@ def configure(env):
     env.Append(CPPPATH=["#platform/vita"])
     env.Append(CPPFLAGS=["-DLIBC_FILEIO_ENABLED", "-DGLES_ENABLED", "-DGL_GLEXT_PROTOTYPES"])
     env.Append(CPPFLAGS=["-DPTHREAD_NO_RENAME"])
-    env.Append(CCFLAGS=["-mtune=cortex-a9", "-mfpu=neon", "-fpermissive", "-ftree-vectorize"])
+    env.Append(CCFLAGS=["-mtune=cortex-a9", "-mfpu=neon", "-fpermissive", "-ftree-vectorize", "-Wno-attributes"])
     env.Append(
         LIBS=[
+            "dl",
             "taihen_stub",
             "SceLibKernel_stub",
             "SceKernelThreadMgr_stub",
+            "SceSblSsMgr_stub",
             "SceAppMgr_stub",
             "SceIofilemgr_stub",
             "SceSysmodule_stub",

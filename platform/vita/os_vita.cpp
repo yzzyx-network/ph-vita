@@ -45,6 +45,8 @@
 #include "servers/visual/visual_server_raster.h"
 #include "servers/visual/visual_server_wrap_mt.h"
 
+#include <dlfcn.h>
+
 int OS_Vita::get_video_driver_count() const {
 	return 1;
 }
@@ -479,7 +481,6 @@ void OS_Vita::set_offscreen_gl_current(bool p_current) {
 
 bool OS_Vita::_check_internal_feature_support(const String &p_feature) {
 	if (p_feature == "mobile") {
-		//TODO support etc2 only if GLES3 driver is selected
 		return true;
 	}
 	if (p_feature == "armeabi-v7a" || p_feature == "armeabi") {
@@ -491,6 +492,52 @@ bool OS_Vita::_check_internal_feature_support(const String &p_feature) {
 OS_Vita *OS_Vita::get_singleton() {
 	return (OS_Vita *)OS::get_singleton();
 };
+
+Error OS_Vita::open_dynamic_library(const String p_path, void *&p_library_handle, bool p_also_set_library_path) {
+	String path = p_path;
+
+	if (FileAccess::exists(path) && path.is_rel_path()) {
+		// dlopen expects a slash, in this case a leading ./ for it to be interpreted as a relative path,
+		//  otherwise it will end up searching various system directories for the lib instead and finally failing.
+		path = "./" + path;
+	}
+
+	if (!FileAccess::exists(path)) {
+		//this code exists so gdnative can load .suprx files from within the executable path
+		path = get_executable_path().get_base_dir().plus_file(p_path.get_file());
+	}
+
+	if (!FileAccess::exists(path)) {
+		//this code exists so gdnative can load .suprx files from a standard unix location
+		path = get_executable_path().get_base_dir().plus_file("../lib").plus_file(p_path.get_file());
+	}
+
+	p_library_handle = dlopen(path.utf8().get_data(), RTLD_NOW);
+	ERR_FAIL_COND_V_MSG(!p_library_handle, ERR_CANT_OPEN, "Can't open dynamic library: " + p_path + ". Error: " + dlerror());
+	return OK;
+}
+
+Error OS_Vita::close_dynamic_library(void *p_library_handle) {
+	if (dlclose(p_library_handle)) {
+		return FAILED;
+	}
+	return OK;
+}
+
+Error OS_Vita::get_dynamic_library_symbol_handle(void *p_library_handle, const String p_name, void *&p_symbol_handle, bool p_optional) {
+	const char *error;
+	dlerror(); // Clear existing errors
+
+	p_symbol_handle = dlsym(p_library_handle, p_name.utf8().get_data());
+
+	error = dlerror();
+	if (error != nullptr) {
+		ERR_FAIL_COND_V_MSG(!p_optional, ERR_CANT_RESOLVE, "Can't resolve symbol " + p_name + ". Error: " + error + ".");
+
+		return ERR_CANT_RESOLVE;
+	}
+	return OK;
+}
 
 OS_Vita::OS_Vita() {
 	video_mode.width = 960;
