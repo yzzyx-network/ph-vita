@@ -43,6 +43,7 @@ jobs:
           ./bootstrap-vitasdk.sh
           ./install-all.sh
           export PATH=$VITASDK/bin:$PATH
+          vdpm vita-rss-libdl
           cd ../vita-packages-extra/pvr_psp2
           vita-makepkg
           vdpm *-arm.tar.xz
