@@ -499,17 +499,12 @@ Error OS_Vita::open_dynamic_library(const String p_path, void *&p_library_handle
 	if (FileAccess::exists(path) && path.is_rel_path()) {
 		// dlopen expects a slash, in this case a leading ./ for it to be interpreted as a relative path,
 		//  otherwise it will end up searching various system directories for the lib instead and finally failing.
-		path = "./" + path;
+		path = "app0:" + path;
 	}
 
 	if (!FileAccess::exists(path)) {
 		//this code exists so gdnative can load .suprx files from within the executable path
-		path = get_executable_path().get_base_dir().plus_file(p_path.get_file());
-	}
-
-	if (!FileAccess::exists(path)) {
-		//this code exists so gdnative can load .suprx files from a standard unix location
-		path = get_executable_path().get_base_dir().plus_file("../lib").plus_file(p_path.get_file());
+		path = get_executable_path().get_base_dir().plus_file("app0:").plus_file(p_path.get_file());
 	}
 
 	p_library_handle = dlopen(path.utf8().get_data(), RTLD_NOW);
