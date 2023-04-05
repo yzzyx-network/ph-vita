@@ -148,6 +148,7 @@ public:
 	~OS_Vita();
 
 	// Misc
+	virtual Error shell_open(String p_uri);
 	virtual Error execute(const String &p_path, const List<String> &p_arguments, bool p_blocking = true, ProcessID *r_child_id = nullptr, String *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr, bool p_open_console = false);
 	virtual Error kill(const ProcessID &p_pid);
 	virtual bool is_process_running(const ProcessID &p_pid) const;
