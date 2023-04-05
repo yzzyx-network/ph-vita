@@ -46,6 +46,16 @@
 #include "servers/visual/visual_server_wrap_mt.h"
 
 #include <dlfcn.h>
+#include <time.h>
+
+/// Clock Setup function (used by get_ticks_usec)
+static uint64_t _clock_start = 0;
+
+static void _setup_clock() {
+	struct timespec tv_now = { 0, 0 };
+	ERR_FAIL_COND_MSG(clock_gettime(CLOCK_MONOTONIC, &tv_now) != 0, "OS CLOCK IS NOT WORKING!");
+	_clock_start = ((uint64_t)tv_now.tv_nsec / 1000L) + (uint64_t)tv_now.tv_sec * 1000000L;
+}
 
 int OS_Vita::get_video_driver_count() const {
 	return 1;
@@ -75,6 +85,8 @@ void OS_Vita::initialize_core() {
 	NetSocketPosix::make_default();
 	IP_Unix::make_default();
 #endif
+
+	_setup_clock();
 }
 
 void OS_Vita::finalize_core() {
@@ -599,10 +611,14 @@ void OS_Vita::delay_usec(uint32_t p_usec) const {
 }
 
 uint64_t OS_Vita::get_ticks_usec() const {
-	static int tick_resolution = sceRtcGetTickResolution();
-	SceRtcTick current_tick;
-	sceRtcGetCurrentTick(&current_tick);
-	return current_tick.tick / (tick_resolution / 1000000);
+	// Unchecked return. Static analyzers might complain.
+	// If _setup_clock() succeeded, we assume clock_gettime() works.
+	struct timespec tv_now = { 0, 0 };
+	clock_gettime(CLOCK_MONOTONIC, &tv_now);
+	uint64_t longtime = ((uint64_t)tv_now.tv_nsec / 1000L) + (uint64_t)tv_now.tv_sec * 1000000L;
+	longtime -= _clock_start;
+
+	return longtime;
 }
 
 String OS_Vita::get_stdin_string() {
