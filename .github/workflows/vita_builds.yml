@@ -1,19 +1,20 @@
-name: 🤖 Android Builds
+name: 🎮 PSVita Builds
 on: [push, pull_request]
 
 # Global Settings
 env:
-  GODOT_BASE_BRANCH: 3.x
-  SCONSFLAGS: verbose=yes warnings=all werror=yes debug_symbols=no
+  GODOT_BASE_BRANCH: 3.5-vita-release
+  SCONSFLAGS: verbose=yes warnings=all werror=no debug_symbols=no
+  VITASDK: /usr/local/vitasdk
+  EUID: 1 makepkg
 
 concurrency:
-  group: ci-${{github.actor}}-${{github.head_ref || github.run_number}}-${{github.ref}}-android
+  group: ci-${{github.actor}}-${{github.head_ref || github.run_number}}-${{github.ref}}-vita
   cancel-in-progress: true
 
 jobs:
-  android-template:
+  vita-template:
     runs-on: "ubuntu-20.04"
-
     name: Template (target=release, tools=no)
 
     steps:
@@ -26,11 +27,6 @@ jobs:
           sudo cp -f misc/ci/sources.list /etc/apt/sources.list
           sudo apt-get update
 
-      - name: Set up Java 11
-        uses: actions/setup-java@v1
-        with:
-          java-version: 11
-
       - name: Setup Godot build cache
         uses: ./.github/actions/godot-cache
         continue-on-error: true
@@ -38,28 +34,27 @@ jobs:
       - name: Setup python and scons
         uses: ./.github/actions/godot-deps
 
-      - name: Compilation (armv7)
-        uses: ./.github/actions/godot-build
-        with:
-          sconsflags: ${{ env.SCONSFLAGS }} android_arch=armv7
-          platform: android
-          target: release
-          tools: false
-
-      - name: Compilation (arm64v8)
-        uses: ./.github/actions/godot-build
-        with:
-          sconsflags: ${{ env.SCONSFLAGS }} android_arch=arm64v8
-          platform: android
-          target: release
-          tools: false
-
-      - name: Generate Godot templates
+      - name: Setup VitaSDK
         run: |
-          cd platform/android/java
-          ./gradlew generateGodotTemplates
-          cd ../../..
-          ls -l bin/
+          sudo apt-get install cmake libarchive-tools fakeroot zip -y
+          git clone https://github.com/vitasdk/vdpm
+          git clone https://github.com/isage/vita-packages-extra
+          cd vdpm
+          ./bootstrap-vitasdk.sh
+          ./install-all.sh
+          export PATH=$VITASDK/bin:$PATH
+          vdpm vita-rss-libdl
+          cd ../vita-packages-extra/pvr_psp2
+          vita-makepkg
+          vdpm *-arm.tar.xz
+
+      - name: Compilation
+        uses: ./.github/actions/godot-build
+        with:
+          sconsflags: ${{ env.SCONSFLAGS }}
+          platform: vita
+          target: release
+          tools: false
 
       - name: Upload artifact
         uses: ./.github/actions/upload-artifact
