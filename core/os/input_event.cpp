@@ -88,7 +88,7 @@ String InputEvent::as_text() const {
 	return String();
 }
 
-bool InputEvent::action_match(const Ref<InputEvent> &p_event, bool p_exact_match, bool *p_pressed, float *p_strength, float *p_raw_strength, float p_deadzone) const {
+bool InputEvent::action_match(const Ref<InputEvent> &p_event, bool *p_pressed, float *p_strength, float *p_raw_strength, float p_deadzone) const {
 	return false;
 }
 
@@ -295,26 +295,25 @@ String InputEventKey::as_text() const {
 	return kc;
 }
 
-bool InputEventKey::action_match(const Ref<InputEvent> &p_event, bool p_exact_match, bool *p_pressed, float *p_strength, float *p_raw_strength, float p_deadzone) const {
+bool InputEventKey::action_match(const Ref<InputEvent> &p_event, bool *p_pressed, float *p_strength, float *p_raw_strength, float p_deadzone) const {
 	Ref<InputEventKey> key = p_event;
 	if (key.is_null()) {
 		return false;
 	}
 
-	bool match;
-	if (scancode != 0) {
-		match = scancode == key->scancode;
+	bool match = false;
+	if (get_scancode() == 0) {
+		uint32_t code = get_physical_scancode_with_modifiers();
+		uint32_t event_code = key->get_physical_scancode_with_modifiers();
+
+		match = get_physical_scancode() == key->get_physical_scancode() && (!key->is_pressed() || (code & event_code) == code);
 	} else {
-		match = physical_scancode == key->physical_scancode;
+		uint32_t code = get_scancode_with_modifiers();
+		uint32_t event_code = key->get_scancode_with_modifiers();
+
+		match = get_scancode() == key->get_scancode() && (!key->is_pressed() || (code & event_code) == code);
 	}
-	uint32_t action_mask = get_modifiers_mask();
-	uint32_t key_mask = key->get_modifiers_mask();
-	if (key->is_pressed()) {
-		match &= (action_mask & key_mask) == action_mask;
-	}
-	if (p_exact_match) {
-		match &= action_mask == key_mask;
-	}
+
 	if (match) {
 		bool pressed = key->is_pressed();
 		if (p_pressed != nullptr) {
@@ -474,21 +473,13 @@ Ref<InputEvent> InputEventMouseButton::xformed_by(const Transform2D &p_xform, co
 	return mb;
 }
 
-bool InputEventMouseButton::action_match(const Ref<InputEvent> &p_event, bool p_exact_match, bool *p_pressed, float *p_strength, float *p_raw_strength, float p_deadzone) const {
+bool InputEventMouseButton::action_match(const Ref<InputEvent> &p_event, bool *p_pressed, float *p_strength, float *p_raw_strength, float p_deadzone) const {
 	Ref<InputEventMouseButton> mb = p_event;
 	if (mb.is_null()) {
 		return false;
 	}
 
 	bool match = mb->button_index == button_index;
-	uint32_t action_mask = get_modifiers_mask();
-	uint32_t button_mask = mb->get_modifiers_mask();
-	if (mb->is_pressed()) {
-		match &= (action_mask & button_mask) == action_mask;
-	}
-	if (p_exact_match) {
-		match &= action_mask == button_mask;
-	}
 	if (match) {
 		bool pressed = mb->is_pressed();
 		if (p_pressed != nullptr) {
@@ -746,17 +737,13 @@ bool InputEventJoypadMotion::is_pressed() const {
 	return Math::abs(axis_value) >= 0.5f;
 }
 
-bool InputEventJoypadMotion::action_match(const Ref<InputEvent> &p_event, bool p_exact_match, bool *p_pressed, float *p_strength, float *p_raw_strength, float p_deadzone) const {
+bool InputEventJoypadMotion::action_match(const Ref<InputEvent> &p_event, bool *p_pressed, float *p_strength, float *p_raw_strength, float p_deadzone) const {
 	Ref<InputEventJoypadMotion> jm = p_event;
 	if (jm.is_null()) {
 		return false;
 	}
 
-	// Matches even if not in the same direction, but returns a "not pressed" event.
-	bool match = (axis == jm->axis);
-	if (p_exact_match) {
-		match &= (axis_value < 0) == (jm->axis_value < 0);
-	}
+	bool match = (axis == jm->axis); // Matches even if not in the same direction, but returns a "not pressed" event.
 	if (match) {
 		float jm_abs_axis_value = Math::abs(jm->get_axis_value());
 		bool same_direction = (((axis_value < 0) == (jm->axis_value < 0)) || jm->axis_value == 0);
@@ -839,7 +826,7 @@ float InputEventJoypadButton::get_pressure() const {
 	return pressure;
 }
 
-bool InputEventJoypadButton::action_match(const Ref<InputEvent> &p_event, bool p_exact_match, bool *p_pressed, float *p_strength, float *p_raw_strength, float p_deadzone) const {
+bool InputEventJoypadButton::action_match(const Ref<InputEvent> &p_event, bool *p_pressed, float *p_strength, float *p_raw_strength, float p_deadzone) const {
 	Ref<InputEventJoypadButton> jb = p_event;
 	if (jb.is_null()) {
 		return false;
@@ -1079,7 +1066,7 @@ bool InputEventAction::is_action(const StringName &p_action) const {
 	return action == p_action;
 }
 
-bool InputEventAction::action_match(const Ref<InputEvent> &p_event, bool p_exact_match, bool *p_pressed, float *p_strength, float *p_raw_strength, float p_deadzone) const {
+bool InputEventAction::action_match(const Ref<InputEvent> &p_event, bool *p_pressed, float *p_strength, float *p_raw_strength, float p_deadzone) const {
 	Ref<InputEventAction> act = p_event;
 	if (act.is_null()) {
 		return false;

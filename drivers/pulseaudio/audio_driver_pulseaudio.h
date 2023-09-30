@@ -70,11 +70,10 @@ class AudioDriverPulseAudio : public AudioDriver {
 	Array pa_devices;
 	Array pa_rec_devices;
 
-	bool active;
-	bool thread_exited;
-	mutable bool exit_thread;
-
-	float latency;
+	bool active = false;
+	bool thread_exited = false;
+	mutable bool exit_thread = false;
+	float real_latency = 0;
 
 	static void pa_state_cb(pa_context *c, void *userdata);
 	static void pa_sink_info_cb(pa_context *c, const pa_sink_info *l, int eol, void *userdata);
@@ -101,6 +100,7 @@ public:
 	virtual Error init();
 	virtual void start();
 	virtual int get_mix_rate() const;
+	virtual int get_mix_buffer_size() const;
 	virtual SpeakerMode get_speaker_mode() const;
 
 	virtual Array get_device_list();

@@ -540,6 +540,10 @@ if selected_platform in platform_list:
     elif env["bits"] == "64":
         suffix += ".64"
 
+    if selected_platform == "windows":
+        if env["use_angle"]:
+            suffix += ".ANGLE"
+
     suffix += env.extra_suffix
 
     sys.path.remove(tmppath)
